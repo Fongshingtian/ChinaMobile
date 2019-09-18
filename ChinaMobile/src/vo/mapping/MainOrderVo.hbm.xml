@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="vo.MainOrderVo" table="Main_Order">
+		<id name="id" column="id" type="java.lang.Integer">
+			<generator class="sequence">
+				<param name="sequence">test_id</param>
+			</generator>
+		</id>
+		<property name="user_id" type="java.lang.Integer"></property>
+		<property name="receive_address" ></property>
+		<property name="phone_number" type="java.lang.String"></property>
+		<property name="mainordernum" type="java.lang.String"></property>
+		<property name="idcard" type="java.lang.String"></property>
+		<property name="pay_method" type="java.lang.String"></property>
+		
+		<property name="business_hall_id" type="java.lang.String"></property>
+		<property name="total_price" type="java.lang.Float"></property>
+		<property name="datetime" type="java.lang.String"></property>
+		<property name="state" type="java.lang.String"></property>
+	</class>
+</hibernate-mapping>

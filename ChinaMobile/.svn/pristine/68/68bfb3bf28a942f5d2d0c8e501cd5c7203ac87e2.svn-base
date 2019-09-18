@@ -1,0 +1,310 @@
+package action;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.alibaba.fastjson.JSONObject;
+
+import service.mmfservice;
+import vo.ChildOrderVo;
+import vo.MainOrderVo;
+import vo.PhoneNumberVo;
+import vo.WareBrandVo;
+import vo.WareColorVo;
+import vo.WareFlashSaleVo;
+import vo.WareVo;
+
+public class mmfaction {
+	private String ssw;
+	private int id;
+	private int px;
+	private int ct;
+	private int pp;
+	private int lb;
+	private int jg;
+	private String pricemin;
+	private int user_id;
+	private int currPage;
+	private int pageCount;
+	private List list;
+	private int count;
+	JSONObject json=new JSONObject();
+	ApplicationContext ac=new ClassPathXmlApplicationContext("config-resource/aplicationContext.xml");
+	mmfservice is= (mmfservice)ac.getBean("mmfService");
+	public String list(){
+		List xs=new ArrayList();//限时抢购
+//		xs=is.selxsqg();
+		System.out.println(xs.toString());
+		return null;
+	}
+	public String delbyid(){
+		System.out.println(id);
+		is.delobjbyid("shoppingcar", "id", id);
+		return "success";
+	}
+	public String toCar(){
+		return "toCar";
+	}
+	public String shoppingcar(){
+		System.out.println("chaxun"+id);
+		List shopcar=is.selobjbyid("ShoppingCarVo", "user_id", id);
+		System.out.println(shopcar.size());
+		json.put("shop",shopcar);
+		return "success";
+	}
+	public String index(){//跳转到商品详情
+		System.out.println(id);
+		
+		return "topro_detail";
+	}
+	
+	public String indexs(){//商品详情
+		System.out.println("查看商品详情"+id);
+		List wares=is.selwaresbypage(1, 4);//热卖
+		WareVo ware=is.selwarebyid(id);//商品
+		List clist=is.selobjbyid("WareColorVo", "ware_id", id);//商品颜色图片
+		List userc=is.selobjbyid("UserCommentVo", "ware_id", id);//商品评论
+		json.put("wares", wares);
+		json.put("ware", ware);
+		json.put("clist", clist);
+		json.put("userc", userc);
+		return "success";
+	}
+	public String xj(){//选机中心
+		
+		List city=new ArrayList();
+		city=is.selcity();
+		List pp=new ArrayList();
+		pp=is.selpp();
+		List lb=new ArrayList();
+		lb=is.sellb();
+		
+		count=is.selwarescount();
+		if(currPage==0){
+			currPage=1;
+		}
+		if(pageCount==0){
+			pageCount=10;
+		}
+		List ware=new ArrayList();
+		ware=is.selwaresbypage(currPage, pageCount);
+		
+		WareFlashSaleVo xs=(WareFlashSaleVo) is.selxsqg();
+		WareVo xsw=new WareVo();
+		xsw=is.selwarebyid(xs.getWare_id());
+		System.out.println("查出"+xsw.getSale_count());
+		
+		WareFlashSaleVo ms=(WareFlashSaleVo) is.selms();
+		WareVo msw =new WareVo();
+		msw=is.selwarebyid(ms.getWare_id());
+		
+		int count=is.selcount();
+		json.put("city", city);
+		json.put("pp", pp);
+		json.put("lb", lb);
+		json.put("ware", ware);
+		
+		json.put("ct", ct);
+		json.put("pp", pp);
+		json.put("lb", lb);
+		json.put("xs", xs);
+		json.put("xsw", xsw);
+		System.out.println(json.toJSONString());
+		json.put("ms", ms);
+		json.put("msw", msw);
+		json.put("count", count);
+		json.put("currPage", currPage);
+		json.put("ys", (count+pageCount-1)/pageCount);
+		System.out.println("当前页数"+(count+pageCount-1)/pageCount);
+		return "success";
+	}
+	public String xzsj(){
+		
+		System.out.println("城市"+ct);
+		System.out.println("品牌"+pp);
+		System.out.println("类别"+lb);
+		System.out.println("排序"+px);
+		System.out.println("价格"+jg);
+		
+		if(currPage==0){
+			currPage=1;
+		}
+		if(pageCount==0){
+			pageCount=10;
+		}
+		System.out.println(currPage);
+		int cts=is.selwarescountby(ct, pp, lb,jg);
+		System.out.println(cts);
+		List li=is.selwaresbypage(ct,pp,lb, currPage, pageCount,px,jg);
+		System.out.println(pageCount);
+		
+		json.put("li", li);
+		json.put("counts", cts);
+		json.put("currPage", currPage);
+		System.out.println("当前页数"+(cts+pageCount-1)/pageCount);
+		json.put("ys", (cts+pageCount-1)/pageCount);
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+	public String selchild(){
+		WareVo l=is.selwarebyid(id);
+		json.put("ware", l);
+		System.out.println("查询物品");
+		System.out.println(l.getName());
+		System.out.println(l.getPhoto());
+		return "success";
+	}
+	public String selcolor(){
+		System.out.println(id);
+		WareColorVo color=(WareColorVo)is.selobjbyid(id,"WareColorVo", "id");
+		System.out.println(color.getId());
+		json.put("color", color);
+		return "success";
+	}
+	public String seldld(){
+		return "toorderinfo";
+	}
+	public String seldd(){
+		System.out.println("号"+ssw);
+		System.out.println(pricemin);
+		MainOrderVo m=is.selmainorder(pricemin, ssw);
+		List child = null;
+		if(m!=null){
+			System.out.println(m.getId());
+			child=is.selchildorder(m.getId()+"");
+		}
+		System.out.println("子订单");
+		System.out.println("查询完成");
+		json.put("li", child);
+		json.put("main", m);
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+	public String detail(){
+		System.out.println(id);
+		return "todetail";
+	}
+	public String todetail(){
+		System.out.println(id);
+		ChildOrderVo child=is.selchildorderbyid(id);
+		MainOrderVo main=is.selmainorderbyid(child.getMain_order_id());
+		String photo=null;
+		String name=null;
+		String price=null;
+		String brand=null;
+		if(child.getSurface().equals("wareVo")){
+		WareVo ware=is.selwarebyid(child.getWare_id());
+		photo=ware.getPhoto();
+		name=ware.getName();
+		price=ware.getPrice()+"";
+		WareBrandVo br=is.selbrandbyid(ware.getBrand_id());
+		brand=br.getName();
+		}else{
+			PhoneNumberVo phone=is.selphonenumberbyid(id);
+			photo="images/img/orderCheck.gif";
+			name=phone.getPhone_number();
+			price=phone.getPrice()+"";
+			brand=phone.getBrand();
+		}
+		json.put("child", child);
+		json.put("main", main);
+		json.put("photo", photo);
+		json.put("name", name);
+		json.put("price", price);
+		json.put("brand", brand);
+		return "success";
+	}
+	public int getCurrPage() {
+		return currPage;
+	}
+	public void setCurrPage(int currPage) {
+		this.currPage = currPage;
+	}
+	public int getPageCount() {
+		return pageCount;
+	}
+	public void setPageCount(int pageCount) {
+		this.pageCount = pageCount;
+	}
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	public JSONObject getJson() {
+		return json;
+	}
+	public void setJson(JSONObject json) {
+		this.json = json;
+	}
+	
+	public String getPricemin() {
+		return pricemin;
+	}
+	public void setPricemin(String pricemin) {
+		this.pricemin = pricemin;
+	}
+	public int getCt() {
+		return ct;
+	}
+	public void setCt(int ct) {
+		this.ct = ct;
+	}
+	public int getPp() {
+		return pp;
+	}
+	public void setPp(int pp) {
+		this.pp = pp;
+	}
+	public int getLb() {
+		return lb;
+	}
+	public void setLb(int lb) {
+		this.lb = lb;
+	}
+	public int getPx() {
+		return px;
+	}
+	public void setPx(int px) {
+		this.px = px;
+	}
+	public String getSsw() {
+		return ssw;
+	}
+	public void setSsw(String ssw) {
+		this.ssw = ssw;
+	}
+
+	public List getList() {
+		return list;
+	}
+
+	public void setList(List list) {
+		this.list = list;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getJg() {
+		return jg;
+	}
+
+	public void setJg(int jg) {
+		this.jg = jg;
+	}
+	public int getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(int user_id) {
+		this.user_id = user_id;
+	}
+}

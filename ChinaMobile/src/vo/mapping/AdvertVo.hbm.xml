@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="vo.AdvertVo" table="Advert">
+		<id name="id" column="id" type="java.lang.Integer">
+			<generator class="sequence">
+				<param name="sequence">test_id</param>
+			</generator>
+		</id>
+		<property name="adv1" type="java.lang.String"></property>
+		<property name="adv2" type="java.lang.String"></property>
+		<property name="adv3" type="java.lang.String"></property>
+	</class>
+</hibernate-mapping>

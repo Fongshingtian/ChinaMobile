@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="vo.PhoneNumberVo" table="Phone_Number">
+		<id name="id" column="id" type="java.lang.Integer">
+			<generator class="sequence">
+				<param name="sequence">test_id</param>
+			</generator>
+		</id>
+		<property name="phone_number" type="java.lang.String"></property>
+		<property name="city" type="java.lang.String"></property>
+		<property name="brand" type="java.lang.String"></property>
+		<property name="have_fare" type="java.lang.Float"></property>
+		<property name="price" type="java.lang.Float"></property>
+		<property name="type" type="java.lang.String"></property>
+		<property name="state" type="java.lang.String"></property>
+	</class>
+</hibernate-mapping>

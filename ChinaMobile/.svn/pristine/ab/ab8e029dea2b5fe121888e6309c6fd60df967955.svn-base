@@ -1,0 +1,197 @@
+ 	<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
+<%@taglib uri="/struts-tags" prefix="s"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/layui/css/layui.css"
+	media="all">
+<script type="text/javascript"
+	src="${pageContext.request.contextPath}/layui/layui.js"></script>
+<title>Insert title here</title>
+
+</head>
+<body>
+	<div style='margin-top: -10px'>
+		<table class="layui-hide" id="test" lay-filter="test"></table>
+	</div>
+	<script type="text/html" id="barDemo">
+  	<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+ 	 <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+	</script>
+	<script>
+		layui.use([ 'jquery', 'layer' ], function() {
+			var $ = layui.$ //重点处
+			, layer = layui.layer;
+			//后面就跟你平时使用jQuery一样
+			$("#back").click(function(){
+				$("#dform").css("display","none");	
+				$("#reset").click();	
+			});
+			if(window.innerHeight>=580){
+				$("#dform").css("height",window.innerHeight+"px");
+			}
+		})
+		//表格数据
+		layui.use('table', function() {
+			var table = layui.table, form = layui.form;
+			table.render({
+			    elem: '#test'
+			    ,url: 'fss!tableList?voName=UsersVo' //数据接口
+			    ,page: true //开启分页
+			    ,cols: [[ //表头
+			      {type:'checkbox'}
+			      ,{field: 'id', title: 'ID', sort: true}
+			      ,{field: 'name', title: '用户名'}
+			      ,{field: 'password', title: '密码',  sort: true}
+			      ,{field: 'birthday', title: '出生日期'} 
+			      ,{field: 'phone_number', title: '电话号码'}
+			      ,{field: 'sex', title: '性别',  sort: true}
+			      ,{field: 'idcard', title: '身份证号码', sort: true}
+			      ,{field: 'face', title: '头像'}
+			      ,{field: 'province', title: '省份', sort: true}
+			      ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:150}
+			    ]], done: function(res, curr, count){
+			        //如果是异步请求数据方式，res即为你接口返回的信息。
+			        //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+			    	 
+			    }
+			  });
+			 //监听行工具事件
+			  table.on('tool(test)', function(obj){
+			    var data = obj.data;
+			    //console.log(obj)
+			    if(obj.event === 'del'){
+			      layer.confirm('真的删除行么', function(index){
+			        obj.del();
+			        layer.close(index);
+			      });
+			    } else if(obj.event === 'edit'){
+			  	layui.use([ 'jquery', 'layer' ], function() {
+						var $ = layui.$ //重点处
+						, layer = layui.layer;
+						//后面就跟你平时使用jQuery一样
+						$("#dform").css("display","inline");
+					}) 
+						layui.use(['form', 'layedit', 'laydate'], function(){
+							  var form = layui.form
+							  ,layer = layui.layer
+							  ,layedit = layui.layedit
+							  ,laydate = layui.laydate;
+							 
+							  //监听提交
+							  form.on('submit(demo1)', function(data){
+							    layer.alert(JSON.stringify(data.field), {
+							      title: '最终的提交信息'
+							    })
+							    return false;
+							  });
+							 
+							  //表单初始赋值
+								form.val("formTest", {
+								  "user.id": data.id // "name": "value"
+								  ,"user.name": data.name // "name": "value"
+								  ,"user.password":data.password // "name": "value"
+								  ,"password2": data.password // "name": "value"
+								 , "user.birthday": data.birthday // "name": "value"
+								  ,"user.phone_number": data.phone_number // "name": "value"
+								  ,"user.sex": data.sex
+								  ,"user.idcard": data.idcard
+								  ,"user.face": data.face
+								  ,"user.province": data.province
+								})
+							});
+			    }
+			  });
+		});
+	</script>
+	
+	<div  id='dform' class='layui-layer layui-layer-page' style="overflow:auto;display:none ;z-index: 19891015; width: 100%;height: 590px;top:0px">
+	<div class='layui-layer-content'> 
+	<center>
+	<div style="padding: 80px; line-height: 22px; background-color: white; font-weight: 400;width: 50%">
+	<form lay-filter='formTest' class="layui-form" method='post' action="fss!test" >
+		<div class="layui-form-item">
+			<input type='hidden' id='id' name='user.id'>
+			<label class="layui-form-label" >用户姓名</label>
+			<div class="layui-input-block">
+				<input type="text" id='name' name="user.name" required lay-verify="required"
+					placeholder="请输入昵称" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">登录密码</label>
+			<div class="layui-input-block">
+				<input type="password" id='pwd' name="user.password" required
+					lay-verify="required" placeholder="请输入密码" autocomplete="off"
+					class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">确认密码</label>
+			<div class="layui-input-block">
+				<input type="password" id='pwd2' name="password2" required
+					lay-verify="required" placeholder="请确认密码" autocomplete="off"
+					class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">出生日期</label>
+			<div class="layui-input-block">
+				<input type="text" id='birthday' name="user.birthday" required lay-verify="required"
+					placeholder="请输入登录名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">电话号码</label>
+			<div class="layui-input-block">
+				<input type="text" id='phone' name="user.phone_number" required lay-verify="required"
+					placeholder="请输入登录名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">性别</label>
+			<div class="layui-input-block">
+				<input type="radio"  id='sex' name="user.sex" value="男" title="男" > <input
+					type="radio"  id='sex2' name="user.sex" value="女" title="女" checked="checked" >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">身份证号码</label>
+			<div class="layui-input-block">
+				<input type="text" id='idcard' name="user.idcard" required lay-verify="required"
+					placeholder="请输入登录名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">头像</label>
+			<div class="layui-input-block" >
+				<input type="text" id='face' name="user.face" required lay-verify="required"
+					placeholder="请输入登录名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">所属省份</label>
+			<div class="layui-input-block">
+				<input type="text" id='province' name="user.province" required lay-verify="required"
+					placeholder="请输入登录名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<p align="right">
+					<button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+					<button id='reset' type="reset" class="layui-btn layui-btn-primary">重置资料</button>
+					<button id='back' class="layui-btn layui-btn-primary">返回列表</button>
+				</p>
+			</div>
+		</div>
+	</form>
+	</div>
+	</center>
+	</div>
+	</div>
+</body>
+</html>

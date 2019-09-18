@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" 
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+		<bean id="configBean"  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+	        <property name="location" value="classpath:config-resource/test.properties"/> 
+	    </bean>
+	<!-- 注入数据源 -->
+	<bean id="dSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >
+   <property name="driverClassName">
+	  <value>${driverClassName}</value>
+   </property>
+   <property name="url">
+      <value>${url}</value>
+   </property>
+   <property name="username"><value>${username}</value></property>
+   <property name="password"><value>${password}</value></property>
+</bean>
+<!-- 注入session工厂 -->
+<bean id="sFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+   <property name="dataSource">
+      <ref local="dSource" />
+   </property>
+   <!-- 配置映射文件 -->
+
+	   	 <property name="mappingResources">
+		  <list>
+			<value>vo/mapping/ActivityVo.hbm.xml  </value>
+			<value>vo/mapping/BusinessHallVo.hbm.xml  </value>
+			<value>vo/mapping/ChildOrderVo.hbm.xml  </value>
+			<value>vo/mapping/CityVo.hbm.xml  </value>
+			<value>vo/mapping/MainOrderVo.hbm.xml  </value>
+			<value>vo/mapping/ManagerVo.hbm.xml  </value>
+			<value>vo/mapping/PhoneNumberVo.hbm.xml  </value>
+			<value>vo/mapping/PhoneSetMealVo.hbm.xml  </value>
+			<value>vo/mapping/ReceiveAddressVo.hbm.xml  </value>
+			<value>vo/mapping/RotationImageVo.hbm.xml  </value>
+			<value>vo/mapping/UserCommentVo.hbm.xml  </value>
+			<value>vo/mapping/UsersVo.hbm.xml  </value>
+			<value>vo/mapping/WareBargainVo.hbm.xml  </value>
+			<value>vo/mapping/WareBrandVo.hbm.xml  </value>
+			<value>vo/mapping/WareClassifyVo.hbm.xml  </value>
+			<value>vo/mapping/WareColorVo.hbm.xml  </value>
+			<value>vo/mapping/WareFrashSaleVo.hbm.xml  </value>
+			<value>vo/mapping/WareGroupBuyingStageVo.hbm.xml  </value>
+			<value>vo/mapping/WareGroupBuyingVo.hbm.xml  </value>
+			<value>vo/mapping/WareVo.hbm.xml  </value>
+			<value>vo/mapping/NoticeVo.hbm.xml  </value>
+			<value>vo/mapping/ShoppinrCarVo.hbm.xml</value>
+	   	   </list>
+   	    </property>
+	   
+  
+   <!-- hibernate其他配置参数 -->
+   <property name="hibernateProperties">
+       <props>
+       <!-- 数据库方言 -->
+	      <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+	      <prop key="hibernate.show_sql">true</prop>
+	      <prop key="hibernate.famat_sql">true</prop>
+	 </props>
+   </property>
+</bean>
+
+<!-- 注入service -->
+<bean id="fssService" class="service.impl.FssServiceimpl">
+	<property name="sessionFactory">
+		<ref local="sFactory"/>
+	</property>
+</bean>
+<bean id="gjService" class="service.impl.gjserviceImpl">
+	<property name="sessionFactory">
+		<ref local="sFactory"/>
+	</property>
+</bean>
+<bean id="mmfService" class="service.impl.mmfserviceImpl">
+	<property name="sessionFactory">
+		<ref local="sFactory"/>
+	</property>
+</bean>
+</beans>

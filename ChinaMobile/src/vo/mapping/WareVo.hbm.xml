@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="vo.WareVo" table="Ware">
+		<id name="id" column="id" type="java.lang.Integer">
+			<generator class="sequence">
+				<param name="sequence">test_id</param>
+			</generator>
+		</id>
+		<property name="name" type="java.lang.String"></property>
+		<property name="price" type="java.lang.Float"></property>
+		<property name="city_id" type="java.lang.Integer"></property>
+		<property name="classify_id" type="java.lang.Integer"></property>
+		<property name="brand_id" type="java.lang.Integer"></property>
+		<property name="stock_count" type="java.lang.Integer"></property>
+		<property name="sale_count" type="java.lang.Integer"></property>
+		<property name="type" type="java.lang.String"></property>
+		<property name="detail" type="java.lang.String"></property>
+		<property name="parameter" type="java.lang.String"></property>
+		<property name="detailed_list" type="java.lang.String"></property>
+		<property name="guarantee" type="java.lang.String"></property>
+		<property name="state" type="java.lang.String"></property>
+		<property name="rp" type="java.lang.String"></property>
+		<property name="rx" type="java.lang.String"></property>
+		<property name="tj" type="java.lang.String"></property>
+		<property name="xp" type="java.lang.String"></property>
+		<property name="photo" type="java.lang.String"></property>
+		<property name="introduction" type="java.lang.String"></property>
+	</class>
+</hibernate-mapping>

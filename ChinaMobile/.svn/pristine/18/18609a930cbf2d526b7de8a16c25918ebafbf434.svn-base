@@ -1,0 +1,601 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert title here</title>
+<link href="${pageContext.request.contextPath}/css/base.css" rel="stylesheet" type="text/css" />
+<link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet" type="text/css" />
+<link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/Slider.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/function.js"></script>
+<!--[if IE 6]>
+<script type="text/javascript" src="js/DD_belatedPNG.js" ></script>
+<script type="text/javascript">
+	DD_belatedPNG.fix('*');
+</script>
+<![endif]-->
+</head>
+<script type="text/javascript">
+	var ct;
+	var pp;
+	var lb;
+	var jg;
+	$(function() {
+		$("#xjzxa").addClass('on');
+		$.post("mmf!xj.action",{},function(data){
+			var srcw='${pageContext.request.contextPath}/imgs/'+data.json.adv;
+			 $("#srcs").attr("src",srcw);
+			var ms="#aa";
+			var pip="#bb";
+			var pcp="#cc";
+			var jga="#jg";
+			px=data.px;
+			ct=data.ct;
+			pp=data.pp;
+			lb=data.lb;
+			//-----------盟市-------------//
+			var a0=$("<a>",{//创建a标签
+  				href:'javascript:void(0);',
+  				text:'不限',
+  				name:'0',
+  				id:'aa',
+  				class:'on'
+  			});
+			a0.click(function(){//给a标签添加点击事件
+				ct=this.name;
+				$(ms).removeClass('on');
+				ms="#"+this.id;
+				$(this).addClass('on');
+				xzsj(ct,pp,lb,px,1,jg);
+			});
+			
+			$("#qaq").append(a0);//将a标签添加到id为qaq的div中
+			
+  			var l=data.json.city;
+			var selects=$("<select>", {
+				class:'hypj_sel'
+			});
+			
+			var options=$("<option>",{
+				value:'0',
+				text:'全部盟市',
+				selected:''
+			});
+			$(selects).append(options);
+			$.each(l,function(index,u){
+				var options=$("<option>",{
+					value:u.id,
+					text:u.name					
+				});
+				$(selects).append(options);
+				var a1=$("<a>",{//创建a标签
+	  				href:'javascript:void(0);',
+	  				name:u.id,
+	  				id:'a'+index,
+	  				text:u.name
+	  			});
+				a1.click(function(){//给a标签添加一个点击事件
+					ct=this.name;
+					$(ms).removeClass('on');
+					ms="#"+this.id;
+					$(this).addClass('on');
+					xzsj(ct,pp,lb,px,1,jg);
+				});
+	  			$("#qaq").append(a1);//将a标签添加到id为qaq的div中
+   			});
+			selects.change(function(){
+				ct=this.value;
+				xzsj(ct,pp,lb,px,1,jg);
+			});
+			$("#mcity").append(selects);
+			//-------------------品牌-----------------//
+  			var l=data.json.pp;
+  			var dd=$("<dd>", {//创建一个dd
+				class:'list h30'
+			});
+  			var a3=$("<a>",{//创建一个a标签
+  				href:'javascript:void(0);',
+  				text:'不限',
+  				name:"0",
+  				id:'bb',
+  				class:'on'
+  			});
+  			a3.click(function(){//给a标签添加点击事件
+				pp=this.name;
+				$(pip).removeClass('on');
+				pip="#"+this.id;
+				$(this).addClass('on');
+				xzsj(ct,pp,lb,px,1,jg);
+			});
+  			dd.append(a3);//将a标签添加到dd中
+  			
+  			
+			$.each(l,function(index,u){
+				var a1=$("<a>",{//创建一个a标签
+	  				href:'javascript:void(0);',
+	  				name:u.id,
+	  				id:'b'+index,
+	  				text:u.name
+	  			});
+				a1.click(function(){//给a标签添加点击事件
+					pp=this.name;
+					$(pip).removeClass('on');
+					pip="#"+this.id;
+					$(this).addClass('on');
+					xzsj(ct,pp,lb,px,1,jg);
+				});
+				dd.append(a1);//将a标签添加到dd中
+   			});
+			$("#qbq").append(dd);//将dd添加到id为qbq的dl中
+			
+			//-------------------类别-----------------//
+  			var l=data.json.lb;
+  			var dd=$("<dd>", {
+				class:'list h30'
+			});
+  			var a3=$("<a>",{
+  				href:'javascript:void(0);',
+  				text:'不限',
+  				name:"0",
+  				id:'cc',
+  				class:'on'
+  			});
+  			a3.click(function(){
+				lb=this.name;
+				$(pcp).removeClass('on');
+				pcp="#"+this.id;
+				$(this).addClass('on');
+				xzsj(ct,pp,lb,px,1,jg);
+			});
+  			dd.append(a3);
+  			
+  			
+			$.each(l,function(index,u){
+				var a1=$("<a>",{
+	  				href:'javascript:void(0);',
+	  				name:u.id,
+	  				id:'c'+index,
+	  				text:u.name
+	  			});
+				a1.click(function(){
+					lb=this.name;
+					$(pcp).removeClass('on');
+					pcp="#"+this.id;
+					$(this).addClass('on');
+					xzsj(ct,pp,lb,px,1,jg);
+				});
+				dd.append(a1);
+   			});
+			$("#qcq").append(dd);
+			
+			//-------------------价格-----------------//
+  			var l=["1-499","500-999","1000-1499","1500-1999","2000-2499","2500-2999","3000-3499","3500-3999","4000以上"];
+  			var d1d=$("<dd>", {
+				class:'list h30'
+			});
+  			var a4=$("<a>",{
+  				href:'javascript:void(0);',
+  				text:'不限',
+  				name:"0",
+  				id:'jg',
+  				class:'on'
+  			});
+  			a4.click(function(){
+				jg=this.name;
+				$(jga).removeClass('on');
+				jga="#"+this.id;
+				$(this).addClass('on');
+				xzsj(ct,pp,lb,px,1,jg);
+			});
+  			d1d.append(a4);
+  			
+  			
+			$.each(l,function(index,u){
+				var a11=$("<a>",{
+	  				href:'javascript:void(0);',
+	  				name:index+1,
+	  				id:'jg'+index,
+	  				text:u
+	  			});
+				a11.click(function(){
+					jg=this.name;
+					$(jga).removeClass('on');
+					jga="#"+this.id;
+					$(this).addClass('on');
+					xzsj(ct,pp,lb,px,1,jg);
+				});
+				d1d.append(a11);
+   			});
+			$("#hyj").append(d1d);
+			
+			//-------               商品实现区               -------------//
+			var l=data.json.ware;
+			spsx(data.json.count,l,data.json.currPage,data.json.ys);
+			//-------------------------销量排序按钮---------------//
+			$("#pxl").click(function(){
+				px=0;
+				xzsj(ct,pp,lb,px,1,jg);
+			});
+			//-------------------------价格排序按钮---------------//
+			$("#pj").click(function(){
+				px=1;
+				xzsj(ct,pp,lb,px,1,jg);
+			});
+			//-------------------限时抢购---------------------//
+			//倒计时
+			maxtime = dayBetween(data.json.xs.end_time);
+			
+			document.all["qgsl"].innerHTML = "已售"+data.json.xsw.sale_count+"件";
+			document.all["xsjg"].innerHTML = "￥"+data.json.xsw.price;
+			document.all["xsxc"].innerHTML = data.json.xsw.introduction;
+			document.all["xsimg"].innerHTML = '<img src="${pageContext.request.contextPath}/imgs/'+data.json.xsw.photo+'" />';
+			document.all["xs2a"].innerHTML='<a href="spike_detail.jsp?id='+data.json.xsw.id+'" class="buy_btn l">抢!!!</a>';
+			//-------------------秒杀---------------------//
+			mextime = dayBetween(data.json.ms.end_time);
+			document.all["msssl"].innerHTML = "已售"+data.json.msw.sale_count+"件";
+			document.all["msjg"].innerHTML = "￥"+data.json.msw.price;
+			document.all["msxc"].innerHTML = data.json.msw.introduction;
+			document.all["msimg"].innerHTML = '<img src="${pageContext.request.contextPath}/imgs/'+data.json.msw.photo+'" />';
+			document.all["ms2a"].innerHTML='<a href="spike_detail.jsp?id='+data.json.msw.id+'" class="buy_btn l">秒杀</a>';
+		},"json");
+		
+		
+		             
+	});
+</script>
+<body>
+<div id="container2">
+ <jsp:include page="head.jsp"></jsp:include>
+    <div class="content">
+    	<div class="where">您的位置： <a href="http://www.nm.10086.cn/" target="_blank">移动首页</a> &gt; <a href="index.jsp">网上商城</a> &gt; 购机中心</div>
+        <div class="blank10"></div>
+        <div class="clearfix">
+        	<div class="l ovh yyzq_l">
+            	<div class="bord1"><a href="javascript:void(0);"><img src="${pageContext.request.contextPath}/images/img/hygj_tu.jpg" width="920" height="205" id="srcs" /></a></div>
+                <div class="bordD7 hypj_term mt8 mb10">
+                	<dl class="clearfix">
+                    	<dt>盟 市</dt>
+                        <dd class="list_ms"><div id="qaq"></div></dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="r">
+            	<div class="yyzq_r">
+                	<div class="yyzq_r_bg">
+                    	<h2 id="yyzq_r_t" class="yyzq_r_t f16 fofY"><span class="on">限时抢购</span><span>秒杀</span></h2>
+                        <div id="yyzq_r_c">
+                        	<!--限时抢购-->
+                            <div class="yyzq_r_c1" id="xsqga">
+                            	<p class="sold"><span class="r colR" id="qgsl"></span><t id="qgsj"></t></p>
+                            	<dl class="clearfix">
+                                	<dt><a href="xsqg_detail.html" id="xsimg"></a></dt>
+                                    <dd><span class="f24 colO2 fofY" id="xsjg"></span><p class="f14" id="xsxc"></p><t id="xs2a"></t></dd>
+                                </dl>
+                            </div><!--限时抢购end-->
+                            <!--秒杀-->
+                            <div class="yyzq_r_c1 hide" id="msa">
+                            	<p class="sold"><span class="r colR" id="msssl"></span><t id="mssj"></t></p>
+                                <dl class="clearfix">
+                                	<dt><a href="spike_detail.jsp" id="msimg"></a></dt>
+                                    <dd><span class="f24 colO2 fofY" id="msjg"></span><p class="f14" id="msxc"></p><t id="ms2a"></t></dd>
+                                </dl>
+                            </div><!--秒杀end-->
+                        </div>
+                    </div>
+                    <div><img src="${pageContext.request.contextPath}/images/yyzq_r_kB.png" /></div>
+                </div>
+                <!--<div class="blank10"></div>-->
+            </div>
+        </div>
+        <div class="clearfix">
+        	<div class="bordD7 hypj_term w_1164">
+                <dl class="clearfix bdB" id="qbq">
+                    <dt>品 牌</dt>
+                </dl>
+                <dl class="clearfix bdB" id="qcq">
+                    <dt>类 别</dt>
+                </dl>
+                <dl class="clearfix" id="hyj">
+                    <dt>合约总价</dt>
+                </dl>
+            </div>
+        </div>
+        <div class="blank10"></div>
+        <div class="hypj">
+        	<div class="ovh clearfix w_1164 hypj_t">
+                <div class="hypj_ps l" id="mcity">
+                    <a href="javascript:void(0);" id="pxl">销 量</a>
+                    <a href="javascript:void(0);" id="pj">价 格</a>
+                     <strong class="ml20">库 存</strong>
+                </div>
+                <div class="r hypj_page" id="j">
+                </div>
+            </div>
+            <div class="hypj_list xjzx_list">
+            	<ul class="clearfix" id="sj">
+                    
+                </ul>
+            </div>
+            <div class="blank10"></div>
+            <div class="blank10"></div>
+            <div class="yyzq_page fwb tar w1186 f14" id="ys">
+                
+            </div>
+            <div class="blank10"></div>
+        </div>
+    </div>
+    <jsp:include page="tail.jsp"></jsp:include>
+</div>
+</body>
+<script type="text/javascript">
+	function xzsj(ct,pp,lb,px,ys,jg){
+		
+		$.post("mmf!xzsj.action",{"ct":ct,"pp":pp,"lb":lb,"px":px,"currPage":ys,"jg":jg},function(date){
+			var l=date.json.li;
+			spsx(date.json.counts,l,date.json.currPage,date.json.ys);
+		},"json");
+	}
+	function spsx(count,l,dqys,ys){
+			$("#sj").empty();
+			$.each(l,function(index,u){
+				
+			
+			var li=$("<li>", {
+			});
+			var aa=$("<a>", {
+				href:'mmf!index?id='+u.id+''
+			});
+			var img=$("<img>", {
+				src:'${pageContext.request.contextPath}/imgs/'+u.photo				
+			});
+			var h3=$("<h3>", {
+			});
+			var aa1=$("<a>",{
+				href:'mmf!index?id='+u.id+'',
+				target:'_blank',
+				class:'col000',
+				title:u.introduction,
+				text:u.introduction
+			});
+			var aa2=$("<a>",{
+				href:'mmf!index?id='+u.id+'',
+				target:'_blank',
+				class:'popBox_btn l mt5',
+				text:'查看详情'
+			});
+			var pp=$("<p>", {
+				class:'f14 fwb mt5 mb5',
+				text:'裸机价：'
+			})
+			var span=$("<span>",{
+				class:'colO3',
+				text:u.price
+			});
+			pp.append(span);
+			h3.append(aa1);
+			aa.append(img);
+			li.append(aa);
+			li.append(h3);
+			li.append(pp);
+			li.append(aa2);
+			$("#sj").append(li);
+			});
+			j(count,l.length,dqys,ys);
+	}
+	function j(count,i,j,k){
+		$("#j").empty();
+		$("#ys").empty();
+			var span1=$("<span>", {
+				class:'colR mr30',
+				text:'共'+count+'个商品'
+			});
+			$("#j").append(span1);
+			$("#j").append(j);
+			var i1=$("<i>", {
+				class:'col666',
+				text:'/'
+			});
+			$("#j").append(i1);
+			var span2=$("<span>", {
+				class:'mr15',
+				text:k
+			});
+			$("#j").append(span2);
+			var xys;
+			if((j+1)>k){
+				xys=j;
+			}else{
+				xys=j+1;
+			}
+			var sys;
+			if((j-1)>0){
+				sys=j-1;
+			}else{
+				sys=j;
+			}
+			var a1=$("<a>", {
+				href:'javascript:void(0);',
+				text:'<'
+			})
+			a1.click(function(){
+				xzsj(ct,pp,lb,px,sys,jg);
+			})
+			var a2=$("<a>", {
+				href:'javascript:void(0);',
+				text:'>'
+			})
+			a2.click(function(){
+				xzsj(ct,pp,lb,px,xys,jg);
+			})
+			
+			$("#j").append(a1);
+			$("#j").append(a2);
+			
+			var a3=$("<a>", {
+				href:'javascript:void(0);',
+				text:'上一页'
+			})
+			a3.click(function(){
+				xzsj(ct,pp,lb,px,sys,jg);
+			})
+			if((j-1)>0){
+				var span=$("<span>", {
+				})
+				var aa3=$("<a>", {
+				href:'javascript:void(0);',
+				text:sys
+				})
+				aa3.click(function(){
+				xzsj(ct,pp,lb,px,sys,jg);
+				})
+				$(span).append(aa3);
+			}else{
+				var span=$("<span>", {
+				})
+				var aa3=$("<a>", {
+				href:'javascript:void(0);',
+				text:'...'
+				})
+				aa3.click(function(){
+				alert("已经是页顶了");
+				})
+				$(span).append(aa3);
+			}
+			
+			var span1=$("<span>", {
+			})
+			var aa4=$("<a>", {
+			href:'javascript:void(0);',
+			text:j
+			})
+			aa4.click(function(){
+				xzsj(ct,pp,lb,px,sys,jg);
+			})
+			$(span1).append(aa4);
+			
+			if(j!=xys){
+				var span22=$("<span>", {
+				})
+				var aa5=$("<a>", {
+				href:'javascript:void(0);',
+				text:xys
+				})
+				aa5.click(function(){
+				xzsj(ct,pp,lb,px,xys,jg);
+				})
+				$(span22).append(aa5);
+			}else{
+				var span22=$("<span>", {
+				})
+				var aa5=$("<a>", {
+				href:'javascript:void(0);',
+				text:'...'
+				})
+				aa5.click(function(){
+				alert("已经是最后一页");
+				})
+				$(span22).append(aa5);
+			}
+			var a4=$("<a>", {
+				href:'javascript:void(0);',
+				text:'下一页'
+			})
+			a4.click(function(){
+				xzsj(ct,pp,lb,px,xys,jg);
+			})
+			$("#ys").append(a3);
+			$("#ys").append(span);
+			$("#ys").append(span1);
+			$("#ys").append(span22);
+			$("#ys").append(a4);
+	}
+	var maxtime = 0; 
+	var mextime=0;
+	function dayBetween(DateTwo){//获取时间差 单位毫秒
+		var DateOne=CurentTime();
+		var OneMonth = DateOne.substring(5,DateOne.lastIndexOf ('-'));  
+	    var OneDay = DateOne.substring(DateOne.length,DateOne.lastIndexOf ('-')+1);  
+	    var OneYear = DateOne.substring(0,DateOne.indexOf ('-'));  
+		
+	    var TwoMonth = DateTwo.substring(5,DateTwo.lastIndexOf ('-'));  
+	    var TwoDay = DateTwo.substring(DateTwo.length,DateTwo.lastIndexOf ('-')+1);  
+	    var TwoYear = DateTwo.substring(0,DateTwo.indexOf ('-'));  
+		
+	   var cha=((Date.parse(OneYear+'/'+OneMonth+'/'+OneDay)- Date.parse(TwoYear+'/'+TwoMonth+'/'+TwoDay))/1000); 
+	    return Math.abs(cha); //单位秒
+	}
+	function CurentTime()//获取当前时间。
+	{ 
+	    var now = new Date();
+	    
+	    var year = now.getFullYear();       //年
+	    var month = now.getMonth() + 1;     //月
+	    var day = now.getDate();            //日
+	    
+	    var hh = now.getHours();            //时
+	    var mm = now.getMinutes();          //分
+	    var ss = now.getSeconds();           //秒
+		
+	    var clock = year + "-";
+	    
+	    if(month < 10)
+	        clock += "0";
+	    
+	    clock += month + "-";
+	    
+	    if(day < 10)
+	        clock += "0";
+	        
+	    clock += day + " ";
+	    
+	    if(hh < 10)
+	        clock += "0";
+	        
+	    clock += hh + ":";
+	    if (mm < 10) clock += '0'; 
+	    clock += mm + ":"; 
+	     
+	    if (ss < 10) clock += '0'; 
+	    clock += ss; 
+	    return(clock); 
+	}
+	   function CountDown() {
+           if (maxtime >= 0) {
+               minutes = Math.floor(maxtime / 60);
+              seconds = Math.floor(maxtime % 60);
+				 day=Math.floor(maxtime/86400);
+				 hour=Math.floor((maxtime/3600)-day*24);
+
+				 minutes=Math.floor((maxtime/60)-(hour*60)-day*24*60);
+
+              msg = "距结束还有"+day+"天"+hour+"时" + minutes + "分" + seconds + "秒";
+              document.all["qgsj"].innerHTML = msg;
+              --maxtime;
+          }
+      }
+	//倒计时时间 maxtime
+	 timer = setInterval("CountDown()", 1000);   
+	 CountDown();  
+	 function CountDown2() {
+         if (mextime >= 0) {
+             minutes = Math.floor(mextime / 60);
+            seconds = Math.floor(mextime % 60);
+				 day=Math.floor(mextime/86400);
+				 hour=Math.floor((mextime/3600)-day*24);
+
+				 minutes=Math.floor((mextime/60)-(hour*60)-day*24*60);
+
+            msg = "距结束还有"+day+"天"+hour+"时" + minutes + "分" + seconds + "秒";
+            
+            document.all["mssj"].innerHTML = msg;
+            --mextime;
+        }
+    }
+	//倒计时时间 maxtime
+	 timers = setInterval("CountDown2()", 1000);   
+	 CountDown2();  
+</script>
+</html>

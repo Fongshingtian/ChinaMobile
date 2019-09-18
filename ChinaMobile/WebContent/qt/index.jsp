@@ -1,0 +1,581 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert title here</title>
+<link href="${pageContext.request.contextPath}/css/base.css" rel="stylesheet" type="text/css" />
+<link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet" type="text/css" />
+<link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/Slider.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/function.js"></script>
+<!--[if IE 6]>
+<script type="text/javascript" src="js/DD_belatedPNG.js" ></script>
+<script type="text/javascript">
+	DD_belatedPNG.fix('*');
+</script>
+<![endif]-->
+
+	<script type="text/javascript">
+		$(function(){
+			$("#indexa").addClass('on');
+// 			轮播图
+			$.post("gj!allRotationImage",{},function(data){
+// 				alert(data);
+				var list=data.rlist;
+				var ss="<ul class='imgList'>";
+				$.each(list,function(index,r){
+					console.log(r);
+					if(index==0){
+						ss+="<li><a href='javascript:void(0);'><img width=737 height=238 src='${pageContext.request.contextPath}/imgs/"+r.image1+"' alt='' /></a></li>";
+						ss+="<li><a href='javascript:void(0);'><img width=737 height=238 src='${pageContext.request.contextPath}/imgs/"+r.image2+"' alt='' /></a></li>";
+						ss+="<li><a href='javascript:void(0);'><img width=737 height=238 src='${pageContext.request.contextPath}/imgs/"+r.image3+"' alt='' /></a></li>";
+						ss+="<li><a href='javascript:void(0);'><img width=737 height=238 src='${pageContext.request.contextPath}/imgs/"+r.image4+"' alt='' /></a></li>";
+					}
+				});
+				
+				ss+="</ul>";
+
+				$("#ind_banner").html(ss);
+				//大图滚动
+				$("#ind_banner").LJ_Slider({
+					autotime: 3000,
+					Event: "mouseover",
+					autoPlay: true,
+					Default: 1,
+					speed: 300, //出现速度
+					setMode: "x",//fade,x,y
+					btndisplay:true //是否显左右两边的按钮示按钮 false不显示 true显示
+				});
+				
+			},"json");
+			
+			//商品分类
+			$.post("gj!selwares",{},function(data){
+				//查询状态为抢购的商品
+				var qg=data.qg;
+				var ss="<dl class='clearfix'>";
+				$.each(qg,function(index,q){
+//	 				alert(index);
+					console.log(q);
+					if(index==0){
+						//alert(q.photo);
+						ss+="<dt><a href='mmf!index?id="+q.id+"'><img src='${pageContext.request.contextPath}/imgs/"+q.photo+"' /></a></dt>";
+						ss+="<dd><em>￥"+q.price+"</em><a href='mmf!index?id="+q.id+"' title="+q.introduction+" class='fwb t_ellipsis'>"+q.name+"<br/>"+q.introduction+"</a></dd>";
+					}
+				});
+				ss+="</dl>";
+				$("#qg").append(ss);
+				
+				//推荐产品
+				var tj=data.tj; 
+		
+				$.each(tj,function(index,t){
+					var  li=$("<li>",{});
+					var em=$("<em>",{});
+					var img1=$("<img>",{
+						src:'${pageContext.request.contextPath}/images/icon_tj.png'
+					});
+					
+					em.append(img1);
+					
+					var a=$("<a>",{
+						href:'mmf!index?id='+t.id
+					});
+					
+					var img2=$("<img>",{
+						src:'${pageContext.request.contextPath}/imgs/'+t.photo
+					});
+					
+					a.append(img2);
+					
+					var a1=$("<a>",{
+						href:'mmf!index?id='+t.id,
+						text:t.name,
+						class:'tit t_ellipsis'
+					});
+					
+					var p=$("<p>",{
+						text:t.introduction
+					});
+					
+					var span=$("<span>",{
+						class:'f14 colR fofY',
+						text:'￥'+t.price
+					});
+					
+					li.append(em);
+					li.append(a);
+					li.append(a1);
+					li.append(p);
+					li.append(span);
+					
+					$("#tj").append(li);
+				});
+   	
+              //热销产品
+// 				var rx=data.rx;
+			
+// 				var s1="<ul  class='hide'>";
+// 				$.each(rx,function(index,r){
+// 					console.log(r);
+				
+// 					s1+= "<li><em><img src='${pageContext.request.contextPath}/images/icon_ys.png' /></em>";
+// 					s1+=" <a href='pro_detail.jsp'><img src='${pageContext.request.contextPath}/"+r.photo+"' /></a>";
+// 	                s1+="<a href='pro_detail.jsp' class='tit t_ellipsis'>"+r.name+"</a>";
+// 	                s1+="<p>"+r.introduction+"</p>"+"<span class='f14 colR fofY'>"+r.price+"</span></li>";
+// 				});
+// 				s1+="</ul>";
+//               	$("#ind_list1").html(s1);
+				 //热销产品
+				var rx=data.rx; 
+				
+				$.each(rx,function(index,r){
+					var  li=$("<li>",{});
+					var em=$("<em>",{});
+					var img1=$("<img>",{
+						src:'${pageContext.request.contextPath}/images/icon_ys.png'
+					});
+					
+					em.append(img1);
+					
+					var a=$("<a>",{
+						href:'mmf!index?id='+r.id
+					});
+					
+					var img2=$("<img>",{
+						src:'${pageContext.request.contextPath}/imgs/'+r.photo
+					});
+					
+					a.append(img2);
+					
+					var a1=$("<a>",{
+						href:'mmf!index?id='+r.id,
+						text:r.name,
+						class:'tit t_ellipsis'
+					});
+					
+					var p=$("<p>",{
+						text:r.introduction
+					});
+					
+					var span=$("<span>",{
+						class:'f14 colR fofY',
+						text:'￥'+r.price
+					});
+					
+					li.append(em);
+					li.append(a);
+					li.append(a1);
+					li.append(p);
+					li.append(span);
+					
+					$("#rx").append(li);
+				});
+				
+				 //新品上市
+				var xp=data.xp; 
+				
+				$.each(xp,function(index,x){
+					var  li=$("<li>",{});
+					var em=$("<em>",{});
+					var img1=$("<img>",{
+						src:'${pageContext.request.contextPath}/images/icon_new.png'
+					});
+					
+					em.append(img1);
+					
+					var a=$("<a>",{
+						href:'mmf!index?id='+x.id
+					});
+					
+					var img2=$("<img>",{
+						src:'${pageContext.request.contextPath}/imgs/'+x.photo
+					});
+					
+					a.append(img2);
+					
+					var a1=$("<a>",{
+						href:'mmf!index?id='+x.id,
+						text:x.name,
+						class:'tit t_ellipsis'
+					});
+					
+					var p=$("<p>",{
+						text:x.introduction
+					});
+					
+					var span=$("<span>",{
+						class:'f14 colR fofY',
+						text:'￥'+x.price
+					});
+					
+					li.append(em);
+					li.append(a);
+					li.append(a1);
+					li.append(p);
+					li.append(span);
+					
+					$("#xp").append(li);
+				});
+				
+				 //热评产品
+				var rp=data.rp; 
+				
+				$.each(rp,function(index,r){
+					var  li=$("<li>",{});
+					var em=$("<em>",{});
+					var img1=$("<img>",{
+						src:'${pageContext.request.contextPath}/images/icon_hot.png'
+					});
+					
+					em.append(img1);
+					
+					var a=$("<a>",{
+						href:'mmf!index?id='+r.id
+					});
+					
+					var img2=$("<img>",{
+						src:'${pageContext.request.contextPath}/imgs/'+r.photo
+					});
+					
+					a.append(img2);
+					
+					var a1=$("<a>",{
+						href:'mmf!index?id='+r.id,
+						text:r.name,
+						class:'tit t_ellipsis'
+					});
+					
+					var p=$("<p>",{
+						text:r.introduction
+					});
+					
+					var span=$("<span>",{
+						class:'f14 colR fofY',
+						text:'￥'+r.price
+					});
+					
+					li.append(em);
+					li.append(a);
+					li.append(a1);
+					li.append(p);
+					li.append(span);
+					
+					$("#rp").append(li);
+				});
+				
+				 //团购活动
+				var tg=data.tg; 
+				
+				$.each(tg,function(index,g){
+					var  li=$("<li>",{});
+					var em=$("<em>",{});
+					var img1=$("<img>",{
+						src:'${pageContext.request.contextPath}/images/icon_qs.png'
+					});
+					
+					em.append(img1);
+					
+					var a=$("<a>",{
+						href:'mmf!index?id='+g.id
+					});
+					
+					var img2=$("<img>",{
+						src:'${pageContext.request.contextPath}/imgs/'+g.photo
+					});
+					
+					a.append(img2);
+					
+					var a1=$("<a>",{
+						href:'mmf!index?id='+g.id,
+						text:g.name,
+						class:'tit t_ellipsis'
+					});
+					
+					var p=$("<p>",{
+						text:g.introduction
+					});
+					
+					var span=$("<span>",{
+						class:'f14 colR fofY',
+						text:'￥'+g.price
+					});
+					
+					li.append(em);
+					li.append(a);
+					li.append(a1);
+					li.append(p);
+					li.append(span);
+					
+					$("#tg").append(li);
+				});
+				
+				 //热卖排行
+				var xl=data.xl; 
+				
+				$.each(xl,function(index,l){
+					if(index<3){
+						var  dl=$("<dl>",{});
+						var  dt=$("<dt>",{});
+						var a=$("<a>",{
+							href:'mmf!index?id='+l.id
+						});
+					
+						var img1=$("<img>",{
+							src:'${pageContext.request.contextPath}/imgs/'+l.photo
+						});
+						a.append(img1);
+						var em=$("<em>",{text:'1'});
+						
+						dt.append(a);
+						dt.append(em);
+						
+						var dd=$("<dd>");
+					
+						var a1=$("<a>",{
+							href:'mmf!index?id='+l.id,
+							title:l.name,
+							text:l.name
+						});
+					
+						var span=$("<span>",{
+							class:'colF00',
+							text:'￥'+l.price
+						});
+						
+						dd.append(a1);
+						dd.append(span);
+						
+						dl.append(dt);
+						dl.append(dd);
+					}
+					$("#xl").append(dl);
+				});
+				//选机中心
+				var kc=data.kc; 
+				
+				$.each(kc,function(index,k){
+					var  li=$("<li>",{});
+					var em=$("<em>",{});
+					var img1=$("<img>",{
+						src:'${pageContext.request.contextPath}/images/icon_ys.png'
+					});
+					
+					em.append(img1);
+					
+					var a=$("<a>",{
+						href:'mmf!index?id='+k.id
+					});
+					
+					var img2=$("<img>",{
+						src:'${pageContext.request.contextPath}/imgs/'+k.photo
+					});
+					
+					a.append(img2);
+					
+					var a1=$("<a>",{
+						href:'mmf!index?id='+k.id,
+						text:k.name,
+						class:'tit t_ellipsis'
+					});
+					
+					var p=$("<p>",{
+						text:k.introduction
+					});
+					
+					var span=$("<span>",{
+						class:'f14 colR fofY',
+						text:'￥'+k.price
+					});
+					
+					li.append(em);
+					li.append(a);
+					li.append(a1);
+					li.append(p);
+					li.append(span);
+					
+					$("#xj").append(li);
+				});
+				
+			});
+			
+			//查询商城公告或是促销活动
+			$.post("gj!allnotice",{},function(data){
+				var list1=data.list1;
+				var s1="<ul>";
+				$.each(list1,function(index,n){
+					s1+=" <li><a href='javascript:void(0);' target='_blank'>"+n.name+"</a></li>";
+				});
+				s1+="</ul>";
+				$("#ind_ggHd_list").append(s1);
+				
+				var list2=data.list2;
+				var s2="<ul class='hide'>";
+				$.each(list2,function(index,l){
+					console.log(l);
+
+					s2+="<li><a href='javascript:void(0);'>"+l.name+"</a></li>";
+				});
+				s2+="</ul>";
+				$("#ind_ggHd_list").append(s2);
+
+			},"json");
+			
+		});
+	
+	</script>
+
+</head>
+<body>
+
+<div id="container">
+	<jsp:include page="head.jsp"></jsp:include>
+    <div class="content">
+    	<div class="ind_whe"><strong class="f14">商品分类 ></strong></div>
+        <div class="ovh ind_top1">
+        	<!--商品分类-->
+          <div class="ind_fl pr" id="ind_fl">
+            	<ul>
+                	<li><a href="yyzq.jsp" class="ind_fl_t yy">网上选号</a>
+                    	<div class="ind_fl_list pa">
+                        	<h2>号段类型</h2>
+                            <p><a href="javascript:void(0);">134</a> | <a href="javascript:void(0);">135</a> | <a href="javascript:void(0);">136</a> | <a href="javascript:void(0);">159</a> | <a href="javascript:void(0);">138</a> | <a href="javascript:void(0);">150</a> | <a href="javascript:void(0);">151</a> | <a href="javascript:void(0);">158</a> | <a href="javascript:void(0);">186</a> | <a href="javascript:void(0);">188</a> | <a href="javascript:void(0);">189</a></p>
+							<h2>吉祥号码</h2>
+                            <p><a href="javascript:void(0);">168一路发</a> | <a href="javascript:void(0);">1818要发要发</a> | <a href="javascript:void(0);">518我要发</a> | <a href="javascript:void(0);">666六六大顺</a> | <a href="javascript:void(0);">888发发发</a> | <a href="javascript:void(0);">99久久不忘</a> | <a href="javascript:void(0);">AABB</a></p>
+                           
+                            <h2>爱情号码</h2>
+                            <p><a href="javascript:void(0);">一生一世 1314</a> | <a href="javascript:void(0);">爱你一生 2013</a> | <a href="javascript:void(0);">生生世世 3344</a> | <a href="javascript:void(0);">我爱你 520</a> | <a href="javascript:void(0);">我爱上你5230</a> | <a href="javascript:void(0);">亲亲我吧7758</a></p>
+                        </div>
+                    </li>
+                    <li><a href="hygj.jsp" class="ind_fl_t hy">热销商品</a>
+                    	<div class="ind_fl_list pa">
+                        	<h2>手机机型</h2>
+                            <p><a href="javascript:void(0);">华为</a>｜<a href="javascript:void(0);">摩托罗拉</a>｜<a href="javascript:void(0);">中兴</a>｜<a href="javascript:void(0);">诺基亚</a>｜<a href="javascript:void(0);">HTC</a>｜<a href="javascript:void(0);">三星</a></p>
+                            <h2>话费优惠</h2>
+                            <p><a href="javascript:void(0);">1-499</a>｜<a href="javascript:void(0);">500-999</a>｜<a href="javascript:void(0);">1000-1999</a>｜<a href="javascript:void(0);">2000-2999</a>｜<a href="javascript:void(0);">3000以上</a></p>
+                            <h2>月最低消费</h2>
+                            <p><a href="javascript:void(0);">30元-50元</a>｜<a href="javascript:void(0);">100元-300元</a></p>
+                        </div>
+                    </li>
+                    <li><a href="xjzx.jsp" class="ind_fl_t cj">选机中心</a>
+                    	<div class="ind_fl_list pa">
+                        	<h2>手机类别</h2>
+                            <p><a href="javascript:void(0);">智能手机</a>｜<a href="javascript:void(0);">商务手机</a>｜<a href="javascript:void(0);">拍照手机</a>｜<a href="javascript:void(0);">电视手机</a>｜<a href="javascript:void(0);">音乐手机</a>｜<a href="javascript:void(0);">老人机</a>｜<a href="javascript:void(0);">儿童机简约</a>｜<a href="javascript:void(0);">实用手机</a></p>
+                            <h2>手机机型</h2>
+                            <p><a href="javascript:void(0);">华为</a>｜<a href="javascript:void(0);">摩托罗拉</a>｜<a href="javascript:void(0);">中兴</a>｜<a href="javascript:void(0);">诺基亚</a>｜<a href="javascript:void(0);">HTC</a>｜<a href="javascript:void(0);">三星</a></p>
+                            <h2>手机价格</h2>
+                            <p><a href="javascript:void(0);">1-499</a>｜<a href="javascript:void(0);">500-999</a>｜<a href="javascript:void(0);">1000-1999</a></p>   
+                        </div>
+                    </li>
+                    <li><a href="thzq.jsp" class="ind_fl_t th">特惠专区</a>
+                    	<div class="ind_fl_list pa">
+                        	<h2>商城特惠</h2>
+                            <p><a href="javascript:void(0);">0元购机</a>｜<a href="javascript:void(0);">预存话费优惠购机</a>｜<a href="javascript:void(0);">购机赠话费</a></p>
+                            <h2>地市特惠</h2>
+                            <p><a href="javascript:void(0);">【呼和浩特】赠礼分</a>｜<a href="javascript:void(0);">【鄂尔多斯】Y300t无保底</a></p>
+                            <h2>季度活动</h2>
+                            <p><a href="javascript:void(0);">5.17活动</a>｜<a href="javascript:void(0);">儿童机活动</a></p>
+                            <h2>六日特价</h2>
+                            <p><a href="javascript:void(0);">优惠购机</a>｜<a href="javascript:void(0);">0元秒杀</a></p>
+                        </div>
+                    </li>
+                </ul> 
+            </div><!--商品分类end-->
+            <!--滚动图-->
+            <div class="ind_banner pr" id="ind_banner">
+            	
+            </div><!--滚动图end-->
+            <!--商城公告+促销活动-->
+            <div class="ind_ggHd r">
+           	  <div class="ind_ggHd_c">
+                	<ul class="ind_ggHd_tit" id="ind_ggHd_tit">
+                    	<li class="on">商城公告</li>
+                        <li>促销活动</li>
+                    </ul>
+                <div class="ind_ggHd_list" id="ind_ggHd_list">
+                    	
+                    </div>
+                </div>
+                <div class="ind_jytj" id="qg">
+                	<img src="${pageContext.request.contextPath}/images/ind_ggHd.gif" />
+                    
+                </div>
+            </div><!--商城公告+促销活动end-->
+        </div>
+        <div class="blank10"></div>
+        <div class="blank10"></div>
+        <div class="ovh clearfix">
+       	  <div class="l ind_list">
+           	<ul class="ind_list_t" id="ind_list_t1">
+                	<li class="on">推荐产品</li>
+                    <li>热销产品</li>
+                    <li>新品上市</li>
+                    <li>热评产品</li>
+                </ul>
+              <div class="ind_list_p" id="ind_list1">
+                  <!--推荐产品-->
+                  <ul id="tj"></ul>
+               <!--推荐产品end-->
+                  <!--热销产品-->
+                  <ul class="hide" id="rx">
+                  </ul>
+                 <!--热销产品end-->
+                  <!--新品上市-->
+                  <ul class="hide"  id="xp">
+                  </ul><!--新品上市end-->
+                  <!--热评产品-->
+                  <ul class="hide" id="rp">
+                  </ul><!--热评产品end-->
+              </div>
+            </div>
+            <!--热卖排行-->
+          <div class="r ind_ph" id="xl">
+            	<h2><a href="javascript:void(0);" class="r colO">更多&gt;&gt;</a><span class="f16 fofY">热/卖/排/行/</span></h2>
+               
+            </div><!--热卖排行end-->
+        </div>
+        
+        <div class="blank10"></div>
+        <div class="ovh clearfix">
+       	  <div class="l ind_list">
+           	<ul class="ind_list_t" id="ind_list_t3">
+                	<span class="more"><a href="javascript:void(0);">更多...</a></span>
+              		<li class="on">团购活动</li>
+                   
+                </ul>
+            <div class="ind_list_p" id="ind_list3">
+                  <!--团购-->
+                  <ul id="tg">
+                    
+                  </ul><!--团购活动end-->
+                
+              </div>
+          </div>
+            <div class="ind_ggHd r tac pt15"><img src="${pageContext.request.contextPath}/images/sg3.png" width="194" height="290"/></div>
+        </div>
+        <div class="blank10"></div>
+        <div class="ovh clearfix">
+       	  <div class="l ind_list">
+           	<ul class="ind_list_t">
+                <span class="more"><a href="javascript:void(0);">更多...</a></span>
+              	<li class="on">选机中心</li>
+                </ul>
+            <div class="ind_list_p" id="ind_list3">
+                  <!--选机中心-->
+                  <ul id="xj">          
+                  </ul><!--选机中心end-->
+              </div>
+          </div>
+		  <div class="ind_ggHd r tac pt15"><img width="194" height="290" src="${pageContext.request.contextPath}/images/sg2.png" /></div>
+        </div>
+        <div class="blank10"></div>
+        <div><a href="javascript:void(0);"><img src="${pageContext.request.contextPath}/images/img/cgk.png" /></a></div>
+    </div>
+     <jsp:include page="tail.jsp"></jsp:include>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+    <struts>
+    <constant name="struts.devMode" value="true"></constant>
+    	<package name="mmf" extends="json-default">
+    		<action  name="mmf" class="action.mmfaction" >
+    			<result type="json">json</result>
+    			<result name="toorderinfo">/qt/orderCheck_info.jsp</result>
+    			<result name="todetail">/qt/orderCheck_detail.jsp</result>
+    			<result name="topro_detail">/qt/pro_detail.jsp</result>
+    			<result name="toCar">/qt/shoppingCar.jsp</result>
+    		</action>
+    	</package>
+    </struts>

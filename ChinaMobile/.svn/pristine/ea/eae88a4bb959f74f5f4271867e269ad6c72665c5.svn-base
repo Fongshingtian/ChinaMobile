@@ -1,0 +1,109 @@
+package service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import common.Hibernate_Dao;
+import service.gjservice;
+import vo.ChildOrderVo;
+import vo.MainOrderVo;
+import vo.ManagerVo;
+import vo.RotationImageVo;
+import vo.UsersVo;
+import vo.WareFlashSaleVo;
+import vo.WareVo;
+
+public class gjserviceImpl extends Hibernate_Dao  implements gjservice{
+	public String cs() {
+		// TODO Auto-generated method stub
+		return "gjserviceImpl";
+	}
+
+	@Override
+	public List selRotationlmage() {
+		
+		return sel("from RotationImageVo");
+	}
+
+	@Override
+	public List selware(String w,String rn) {
+		List list=new ArrayList();
+		list=sel("from WareVo where "+w+"='"+rn+"'");
+		return list;
+	}
+
+	@Override
+	public List selgroup() {
+		// TODO Auto-generated method stub
+		return sel("from WareVo where type='抢购'");
+	}
+
+	//  where rownum<4 order by sale_count
+	@Override
+	public List selwarebycount() {
+		// TODO Auto-generated method stub
+		return sel("from WareVo");
+	}
+
+	@Override
+	public List selwarebystock() {
+		// TODO Auto-generated method stub
+		return sel("from WareVo order by stock_count ");
+	}
+
+	@Override
+	public List selphonenumber(String type) {
+		// TODO Auto-generated method stub
+		return sel("from PhoneNumberVo where type= '"+type+"' ");
+	}
+	@Override
+	public List selphonesetmeal() {
+		// TODO Auto-generated method stub
+		return sel("from PhoneSetMealVo");
+	}
+	@Override
+	public List selnotice(String type) {
+		// TODO Auto-generated method stub
+		return sel("from NoticeVo where type= '"+type+"' ");
+	}
+	
+	@Override
+	public UsersVo seluser(UsersVo m) {
+		// TODO Auto-generated method stub
+		return (UsersVo)selobjunique("from UsersVo g where g.name='"+m.getName()+"' and g.password='"+m.getPassword()+"'");
+	}
+
+	@Override
+	public ChildOrderVo selchildorder(Integer id) {
+		
+		return (ChildOrderVo)selbyid("from ChildOrderVo where id="+id);
+	}
+	
+	@Override
+	public MainOrderVo selbymainid(Integer mainid) {
+		// TODO Auto-generated method stub
+		return (MainOrderVo)selbyid("from ChildOrderVo where main_order_id="+mainid);
+	}
+	
+	@Override
+	public List selactivity() {
+		// TODO Auto-generated method stub
+		return sel("from ActivityVo");
+	}
+	//查询限时抢购
+	public WareFlashSaleVo selxsqg() {
+		return (WareFlashSaleVo)selbyid("from WareFlashSaleVo where state=1");
+	}
+	//查询秒杀
+	public WareFlashSaleVo selms() {
+		return (WareFlashSaleVo)selbyid("from WareFlashSaleVo where state=2");
+	}
+	
+	//根据id查询商品
+	public WareVo selwarebyid(Integer id) {
+		// TODO Auto-generated method stub
+		return (WareVo) selbyid("from WareVo where id="+id);
+	}
+	
+}
+

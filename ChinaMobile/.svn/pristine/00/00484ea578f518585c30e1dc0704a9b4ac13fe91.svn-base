@@ -1,0 +1,682 @@
+package action;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.List;
+import java.util.UUID;
+
+import org.apache.struts2.ServletActionContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.alibaba.fastjson.JSONObject;
+
+import service.FssService;
+import vo.ActivityVo;
+import vo.BusinessHallVo;
+import vo.ChildOrderVo;
+import vo.CityVo;
+import vo.MainOrderVo;
+import vo.ManagerVo;
+import vo.NoticeVo;
+import vo.PhoneNumberVo;
+import vo.PhoneSetMealVo;
+import vo.ReceiveAddressVo;
+import vo.RotationImageVo;
+import vo.UserCommentVo;
+import vo.UsersVo;
+import vo.WareBargainVo;
+import vo.WareBrandVo;
+import vo.WareClassifyVo;
+import vo.WareColorVo;
+import vo.WareFlashSaleVo;
+import vo.WareVo;
+
+public class fssaction {
+	ApplicationContext ac = new ClassPathXmlApplicationContext(
+			"config-resource/aplicationContext.xml");
+	FssService fs = (FssService) ac.getBean("fssService");
+	// --------------------------参数--------------------------
+	JSONObject data = new JSONObject();
+	private Integer page;// 分页参数
+	private Integer limit;// 分页参数
+	private Integer code;// 分页参数
+	private Integer count;// 分页参数
+	private String voName;// vo名称
+	private String state;// 状态
+	private String id;// 状态Id
+	// ---------vo---------
+	private UsersVo user;//
+	private ManagerVo manager;//
+	private WareVo ware;//
+	private BusinessHallVo hall;
+	private CityVo city;
+	private NoticeVo notice;
+	private PhoneNumberVo number;
+	private PhoneSetMealVo meal;
+	private RotationImageVo image;
+	private UserCommentVo comment;
+	private MainOrderVo main;
+	private ChildOrderVo child;
+	private ActivityVo activity;
+	private ReceiveAddressVo address;
+	private WareBargainVo bargain;
+	private WareBrandVo brand;
+	private WareClassifyVo classify;
+	private WareColorVo color;
+	private WareFlashSaleVo flash;
+	// 上传图片相关
+	private String existImgIndexs;
+	private Integer existList;
+	private Integer existParameter;
+	private Integer existPhoto;
+	private Integer existGuarantee;
+	// 文件上传-相关参数
+	private File[] imgs;
+	private String[] imgsFileName;// +System.getProperty("file.separator")-
+	private String savepath = ServletActionContext.getServletContext()
+			.getRealPath("imgs") + System.getProperty("file.separator");
+	private String[] imgsContentType;
+
+	// ------------------获得条件查询列表--------------------------
+	public String search() {
+		// 拼接的列名字符串
+		String columns = "";
+		// 列名列表
+		String tableName = voName.substring(0, voName.length() - 2);
+		if (tableName.equals("BusinessHall")) {
+			tableName = "Business_Hall";
+		} else if (tableName.equals("PhoneNumber")) {
+			tableName = "Phone_Number";
+		} else if (tableName.equals("MainOrder")) {
+			tableName = "Main_Order";
+		} else if (tableName.equals("PhoneSetMeal")) {
+			tableName = "Phone_Set_Meal";
+		} else if (tableName.equals("RotationImage")) {
+			tableName = "Rotation_Image";
+		} else if (tableName.equals("UserComment")) {
+			tableName = "User_Comment";
+		} else if (tableName.equals("WareBargain")) {
+			tableName = "Ware_Bargain";
+		} else if (tableName.equals("WareBrand")) {
+			tableName = "Ware_Brand";
+		} else if (tableName.equals("WareClassify")) {
+			tableName = "Ware_Classify";
+		} else if (tableName.equals("WareColor")) {
+			tableName = "Ware_Color";
+		} else if (tableName.equals("WareFlashSale")) {
+			tableName = "Ware_Flash_Sale";
+		} else if (tableName.equals("ChildOrder")) {
+			tableName = "Child_Order";
+		}
+		List list = fs.getTableColumns(tableName);
+		for (Object obj : list) {
+			columns += obj + ",";
+		}
+		// 设置模糊查询符号%
+		char chars[] = state.toCharArray();
+		String words = "%";
+		for (int i = 0; i < chars.length; i++) {
+			words += chars[i] + "%";
+		}
+		// 去除最后一个逗号
+		columns = columns.substring(0, columns.length() - 1);
+		data.put("code", 0);
+		data.put("count", fs.SearchDataCount(voName, columns, words));
+		data.put("data", fs.getSearchList(voName, columns, words, page, limit));
+		System.out.println(data.toJSONString());
+		return "success";
+	}
+
+	// -------------------获得数据列表--------------------
+	public String tableList() {
+		System.out.println(voName);
+		if (voName.equals("RotationImageVo")) {
+			page = 1;
+			limit = 1;
+		}
+		List list = (List) fs.getTableList(voName, page, limit);
+		data.put("code", 0);
+		data.put("count", fs.DataCount(voName));
+		data.put("data", fs.getTableList(voName, page, limit));
+		System.out.println(data.toJSONString());
+		return "success";
+	}
+
+	// ---------------------改变状态-------------------------
+	public String changeState() {
+		System.out.println("change");
+		fs.changeState(voName, state, id);
+		return "success";
+	}
+
+	// ----------------------保存（修改/新增）-----------------------
+	public String saveVo() {
+		Object obj = new Object();
+		// 商品操作
+		if (voName.equals("Ware")) {
+			// 如果选择了文件就去增加 如果没就直接更改
+			if (imgs != null && !imgsFileName[0].equals("")) {
+				// 保存图片文件
+				DownLoadImgs();
+				// 获得图片详情本存在的图片下标+新增文件数量
+				String eCount[] = existImgIndexs.split(",");
+				// 获得图片详情新增文件数量
+				int fCount = Integer.parseInt(eCount[eCount.length - 1]);
+				// 如果图片详情有新增就更改
+				if (fCount != 0) {
+					// 最终保存的图片详情
+					String details = "";
+					// 如果没有本存在的图片的操作
+					if (eCount.length == 1) {
+						for (int i = 0; i < fCount; i++) {
+							details += imgsFileName[i] + ",";
+						}
+						ware.setDetail(details.substring(0,
+								details.length() - 1));
+						System.out.println("无本地" + details);
+					} else {
+						// 有本存在也有新增的（混合）
+						// 把本存在的图片名分割成数组
+						String eContent[] = ware.getDetail().split(",");
+						// 获得本存在的图片对应的下标
+						int eIndex[] = new int[eCount.length - 1];
+						for (int i = 0; i < eIndex.length; i++) {
+							eIndex[i] = Integer.parseInt(eCount[i]);
+						}
+						// 根据本存在的图片下标拼接成最终detail
+						int eTemp = 0;
+						int nTemp = 0;
+						for (int i = 0; i < fCount + eIndex.length; i++) {
+							if (eIndex[eTemp] == i) { // 0-1 1-2// 0-0 1-3
+								details += eContent[eTemp] + ",";
+								if (eTemp < eIndex.length - 1) {
+									eTemp++;
+								}
+							} else {
+								details += imgsFileName[nTemp] + ",";
+								if (nTemp < fCount - 1) {
+									nTemp++;
+								}
+							}
+						}
+						System.out.println("混合" + details);
+						ware.setDetail(details.substring(0,
+								details.length() - 1));
+					}
+				} else {
+					System.out.println("detail无新增");
+				}
+				if (existGuarantee != -1 && existGuarantee != null) {
+					ware.setGuarantee(imgsFileName[existGuarantee]);
+				}
+				if (existList != -1 && existList != null) {
+					ware.setDetailed_list(imgsFileName[existList]);
+				}
+				if (existParameter != -1 && existParameter != null) {
+					ware.setParameter(imgsFileName[existParameter]);
+				}
+				if (existPhoto != -1 && existPhoto != null) {
+					ware.setPhoto(imgsFileName[existPhoto]);
+				}
+			} else {
+				System.out.println("imgs 为 null");
+			}
+			if (ware.getId() != -1) {
+				state = "不为空";
+			}
+			obj = ware;
+		} else if (voName.equals("Users")) {
+			if (imgs != null) {
+				DownLoadImgs();
+				user.setFace(imgsFileName[0]);
+			}
+			if (user.getId() != -1) {
+				state = "不为空";
+			}
+			obj = user;
+		} else if (voName.equals("Manager")) {
+
+			if (manager.getId() != -1) {
+				state = "不为空";
+			}
+			obj = manager;
+		} else if (voName.equals("Business_Hall")) {
+			if (hall.getId() != -1) {
+				state = "不为空";
+			}
+			obj = hall;
+		} else if (voName.equals("City")) {
+			if (city.getId() != -1) {
+				state = "不为空";
+			}
+			obj = city;
+		} else if (voName.equals("Notice")) {
+			if (notice.getId() != -1) {
+				state = "不为空";
+			}
+			obj = notice;
+		} else if (voName.equals("Phone_Number")) {
+			if (number.getId() != -1) {
+				state = "不为空";
+			}
+			obj = number;
+		} else if (voName.equals("Main_Order")) {
+			if (main.getId() != -1) {
+				state = "不为空";
+			}
+			obj = main;
+		} else if (voName.equals("Child_Order")) {
+			if (child.getId() != -1) {
+				state = "不为空";
+			}
+			obj = child;
+		} else if (voName.equals("Phone_Set_Meal")) {
+			if (meal.getId() != -1) {
+				state = "不为空";
+			}
+			obj = meal;
+		} else if (voName.equals("Rotation_Image")) {
+			if (imgs != null) {
+				DownLoadImgs();
+				int img1 = 0;
+				int img2 = 1;
+				int img3 = 2;
+				int img4 = 3;
+				if (image.getImage1().equals("null")) {
+					image.setImage1(imgsFileName[img1]);
+				} else {
+					img4--;
+					img3--;
+					img2--;
+				}
+				if (image.getImage2().equals("null")) {
+					image.setImage2(imgsFileName[img2]);
+				} else {
+					img4--;
+					img3--;
+				}
+				if (image.getImage3().equals("null")) {
+					image.setImage3(imgsFileName[img3]);
+				} else {
+					img4--;
+				}
+				if (image.getImage4().equals("null")) {
+					image.setImage4(imgsFileName[img4]);
+				}
+			}
+			if (image.getId() != -1) {
+				state = "不为空";
+			}
+			obj = image;
+		} else if (voName.equals("User_Comment")) {
+			if (comment.getId() != -1) {
+				state = "不为空";
+			}
+			obj = comment;
+		} else if (voName.equals("Ware_Bargain")) {
+			if (bargain.getId() != -1) {
+				state = "不为空";
+			}
+			obj = bargain;
+		} else if (voName.equals("Ware_Brand")) {
+			if (brand.getId() != -1) {
+				state = "不为空";
+			}
+			obj = brand;
+		} else if (voName.equals("Ware_Classify")) {
+			if (classify.getId() != -1) {
+				state = "不为空";
+			}
+			obj = classify;
+		} else if (voName.equals("Ware_Color")) {
+			if (imgs != null) {
+				DownLoadImgs();
+				color.setImage(imgsFileName[0]);
+			}
+			if (color.getId() != -1) {
+				state = "不为空";
+			}
+			obj = color;
+		} else if (voName.equals("Ware_Flash_Sale")) {
+			if (flash.getId() != -1) {
+				state = "不为空";
+			}
+			obj = flash;
+		}
+		//
+		if (state == null) {
+			fs.SaveVo(obj);
+		} else {
+			fs.UpdateVo(obj);
+		}
+		return "ok";
+	}
+
+	// ----------------------------保存图片-----------------------------
+	public String DownLoadImgs() {
+		for (int i = 0; i < imgs.length; i++) {
+			try {
+				File file = new File(savepath);
+				if (!file.exists()) {
+					file.mkdirs();
+				}
+				String savename = UUID.randomUUID().toString()
+						+ imgsFileName[i].substring(
+								imgsFileName[i].indexOf(".") - 1,
+								imgsFileName[i].length());
+				imgsFileName[i] = savename;
+				FileOutputStream fos = new FileOutputStream(this.savepath
+						+ this.imgsFileName[i]);
+				FileInputStream fis = new FileInputStream(this.imgs[i]);
+				byte[] bs = new byte[1024];
+				int real = fis.read(bs);
+				while (real > 0) {
+					fos.write(bs, 0, real);
+					real = fis.read(bs);
+				}
+				fos.close();
+				fis.close();
+			} catch (Exception e) {
+				System.out.println("出错了！");
+			}
+		}
+		return null;
+	}
+
+	public UsersVo getUser() {
+		return user;
+	}
+
+	// -----------------------------Set&Get-------------------------------
+
+	public BusinessHallVo getHall() {
+		return hall;
+	}
+
+	public void setHall(BusinessHallVo hall) {
+		this.hall = hall;
+	}
+
+	public void setUser(UsersVo user) {
+		this.user = user;
+	}
+
+	public JSONObject getJson() {
+		return data;
+	}
+
+	public Integer getPage() {
+		return page;
+	}
+
+	public void setPage(Integer page) {
+		this.page = page;
+	}
+
+	public Integer getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Integer limit) {
+		this.limit = limit;
+	}
+
+	public void setData(JSONObject data) {
+		this.data = data;
+	}
+
+	public Integer getCode() {
+		return code;
+	}
+
+	public void setCode(Integer code) {
+		this.code = code;
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+
+	public String getVoName() {
+		return voName;
+	}
+
+	public void setVoName(String voName) {
+		this.voName = voName;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public WareVo getWare() {
+		return ware;
+	}
+
+	public void setWare(WareVo ware) {
+		this.ware = ware;
+	}
+
+	public ManagerVo getManager() {
+		return manager;
+	}
+
+	public void setManager(ManagerVo manager) {
+		this.manager = manager;
+	}
+
+	public String[] getImgsFileName() {
+		return imgsFileName;
+	}
+
+	public void setImgsFileName(String[] imgsFileName) {
+		this.imgsFileName = imgsFileName;
+	}
+
+	public String getSavepath() {
+		return savepath;
+	}
+
+	public void setSavepath(String savepath) {
+		this.savepath = savepath;
+	}
+
+	public String[] getImgsContentType() {
+		return imgsContentType;
+	}
+
+	public void setImgsContentType(String[] imgsContentType) {
+		this.imgsContentType = imgsContentType;
+	}
+
+	public File[] getImgs() {
+		return imgs;
+	}
+
+	public void setImgs(File[] imgs) {
+		this.imgs = imgs;
+	}
+
+	public String getExistImgIndexs() {
+		return existImgIndexs;
+	}
+
+	public void setExistImgIndexs(String existImgIndexs) {
+		this.existImgIndexs = existImgIndexs;
+	}
+
+	public JSONObject getData() {
+		return data;
+	}
+
+	public Integer getExistList() {
+		return existList;
+	}
+
+	public void setExistList(Integer existList) {
+		this.existList = existList;
+	}
+
+	public Integer getExistParameter() {
+		return existParameter;
+	}
+
+	public void setExistParameter(Integer existParameter) {
+		this.existParameter = existParameter;
+	}
+
+	public Integer getExistPhoto() {
+		return existPhoto;
+	}
+
+	public void setExistPhoto(Integer existPhoto) {
+		this.existPhoto = existPhoto;
+	}
+
+	public Integer getExistGuarantee() {
+		return existGuarantee;
+	}
+
+	public void setExistGuarantee(Integer existGuarantee) {
+		this.existGuarantee = existGuarantee;
+	}
+
+	public CityVo getCity() {
+		return city;
+	}
+
+	public void setCity(CityVo city) {
+		this.city = city;
+	}
+
+	public NoticeVo getNotice() {
+		return notice;
+	}
+
+	public void setNotice(NoticeVo notice) {
+		this.notice = notice;
+	}
+
+	public PhoneNumberVo getNumber() {
+		return number;
+	}
+
+	public void setNumber(PhoneNumberVo number) {
+		this.number = number;
+	}
+
+	public PhoneSetMealVo getMeal() {
+		return meal;
+	}
+
+	public void setMeal(PhoneSetMealVo meal) {
+		this.meal = meal;
+	}
+
+	public RotationImageVo getImage() {
+		return image;
+	}
+
+	public void setImage(RotationImageVo image) {
+		this.image = image;
+	}
+
+	public UserCommentVo getComment() {
+		return comment;
+	}
+
+	public void setComment(UserCommentVo comment) {
+		this.comment = comment;
+	}
+
+	public MainOrderVo getMain() {
+		return main;
+	}
+
+	public void setMain(MainOrderVo main) {
+		this.main = main;
+	}
+
+	public ChildOrderVo getChild() {
+		return child;
+	}
+
+	public void setChild(ChildOrderVo child) {
+		this.child = child;
+	}
+
+	public ActivityVo getActivity() {
+		return activity;
+	}
+
+	public void setActivity(ActivityVo activity) {
+		this.activity = activity;
+	}
+
+	public ReceiveAddressVo getAddress() {
+		return address;
+	}
+
+	public void setAddress(ReceiveAddressVo address) {
+		this.address = address;
+	}
+
+	public WareBargainVo getBargain() {
+		return bargain;
+	}
+
+	public void setBargain(WareBargainVo bargain) {
+		this.bargain = bargain;
+	}
+
+	public WareBrandVo getBrand() {
+		return brand;
+	}
+
+	public void setBrand(WareBrandVo brand) {
+		this.brand = brand;
+	}
+
+	public WareClassifyVo getClassify() {
+		return classify;
+	}
+
+	public void setClassify(WareClassifyVo classify) {
+		this.classify = classify;
+	}
+
+	public WareColorVo getColor() {
+		return color;
+	}
+
+	public void setColor(WareColorVo color) {
+		this.color = color;
+	}
+
+	public WareFlashSaleVo getFlash() {
+		return flash;
+	}
+
+	public void setFlash(WareFlashSaleVo flash) {
+		this.flash = flash;
+	}
+
+}

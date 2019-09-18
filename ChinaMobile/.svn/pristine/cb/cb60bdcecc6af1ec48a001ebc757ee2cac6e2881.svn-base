@@ -1,0 +1,166 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/layui/css/layui.css" media="all">
+<script type="text/javascript" src="${pageContext.request.contextPath}/layui/layui.js"></script>
+<title>Insert title here</title>
+
+</head>
+<body>
+	<div style='padding: 16px'>
+		<div class="demoTable">
+			搜索商户：
+			<div class="layui-inline">
+				<input class="layui-input" name="keyword" id="demoReload"
+					autocomplete="off">
+			</div>
+			<button class="layui-btn" data-type="reload">搜索</button>
+		</div>
+		<table class="layui-hide" id="test" lay-filter="tab"></table>
+	</div>
+	<script type="text/html" id="toolbarDemo">
+ 	 <div class="layui-btn-container">
+   		<button style='background:#5FB878' class="layui-btn layui-btn-sm" lay-event="getCheckData">全部启用</button>
+   	 	<button style='background:#b93636' class="layui-btn layui-btn-sm" lay-event="getCheckLength">全部禁用</button>
+    	<button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+  	</div>
+	</script>
+
+	<script type="text/html" id="barDemo">
+ 	 	<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+	</script>
+
+	<script type="text/html" id="switchTpl">
+ 		 <div id='{{d.id}}' onclick="enabled('{{d.id}}');" class="layui-unselect layui-form-switch" lay-skin="_switch">
+		<em >{{d.id==10000?'已启用' : '已禁用'}}</em>
+		<i></i>
+	</div>
+	</script>
+	<script type="text/html" id="switchTpl2">
+ 		 <!-- 这里的 checked 的状态只是演示 -->
+ 		 <input type="checkbox" name="state" onclick="alert('x');" value="{{d.id}}" lay-skin="switch" lay-text="已启用|已禁用" lay-filter="stateDemo" {{ d.id == 10006 ? 'checked' : '' }}>
+	</script>
+	<script>
+		function enabled(id){
+			document.getElementById(id).setAttribute("class",'layui-unselect layui-form-switch layui-form-onswitch');
+			alert(document.getElementById(id).getAttribute("class"));
+		}
+		layui.use('table', function() {
+			var table = layui.table, form = layui.form;
+
+			table.render({
+				elem : '#test',
+				url : '${pageContext.request.contextPath}'+'/data.json',
+				toolbar : '#toolbarDemo',
+				cellMinWidth : 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+				,
+				cols : [ [ {
+					type : 'checkbox'
+				}, {
+					field : 'id',
+					width : 80,
+					title : 'ID',
+					sort : true
+				}, {
+					field : 'username',
+					width : 80,
+					title : '用户名',
+					templet : '#usernameTpl'
+				}, {
+					field : 'sex',
+					width : 80,
+					title : '性别'
+				}, {
+					field : 'city',
+					width : 80,
+					title : '城市'
+				}
+				//,{field:'sign', title: '签名',  minWidth: 100} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+				// ,{field:'experience', title: '积分'}
+				, {
+					field : 'score',
+					title : '评分'
+				}, {
+					field : 'classify',
+					title : '职业'
+				}, {
+					field : 'wealth',
+					width : 137,
+					title : '财富'
+				}, {
+					title : '编辑',
+					toolbar : '#barDemo',
+					width : 65
+				}, {
+					fixed : 'right',
+					field : 'state',
+					title : '启禁用',
+					width : 100,
+					minWidth : 100,
+					templet : '#switchTpl',
+					unresize : true
+				} ] ],
+				page : true
+			});
+			//监听启禁用操作
+			form.on('switch(stateDemo)', function(obj) {
+			alert(obj.checked());
+				/* layer.tips(this.value + ' ' + this.name + '：'
+						+ obj.elem.checked, obj.othis); */
+				/* layer.confirm('是否将其启用？', {
+					btn : [ '确定', '取消' ]
+				//按钮
+				}, function() {
+					layer.msg('启用成功！', {
+						icon : 1
+					});
+				}, function() {
+					 layer.msg('也可以这样', {
+						time : 20000, //20s后自动关闭
+						btn : [ '明白了', '知道了' ]
+					}); 
+				}); */
+			});
+
+			//头工具栏事件
+			table.on('toolbar(tab)', function(obj) {
+				var checkStatus = table.checkStatus(obj.config.id);
+				switch (obj.event) {
+				case 'getCheckData':
+					var data = checkStatus.data;
+					layer.alert(JSON.stringify(data));
+					break;
+				case 'getCheckLength':
+					var data = checkStatus.data;
+					layer.msg('选中了：' + data.length + ' 个');
+					break;
+				case 'isAll':
+					layer.msg(checkStatus.isAll ? '全选' : '未全选');
+					break;
+				}
+				;
+			});//
+
+			//监听行工具事件
+			table.on('tool(tab)', function(obj) {//
+				var data = obj.data;
+				//console.log(obj)
+				if (obj.event === 'edit') {
+					layer.prompt({
+						formType : 2,
+						value : data.id
+					}, function(value, index) {
+						obj.update({
+							id : value
+						});
+						layer.close(index);
+					});
+				}
+			});//
+		});
+	</script>
+</body>
+</html>

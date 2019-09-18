@@ -1,0 +1,385 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>中国移动网上商城--个人中心</title>
+<link href="${pageContext.request.contextPath}/css/base.css"
+	rel="stylesheet" type="text/css" />
+<link href="${pageContext.request.contextPath}/css/common.css"
+	rel="stylesheet" type="text/css" />
+<link href="${pageContext.request.contextPath}/css/style.css"
+	rel="stylesheet" type="text/css" />
+<script type="text/javascript"
+	src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
+<script type="text/javascript"
+	src="${pageContext.request.contextPath}/js/Slider.js"></script>
+<script type="text/javascript"
+	src="${pageContext.request.contextPath}/js/function.js"></script>
+<!--[if IE 6]>
+<script type="text/javascript" src="js/DD_belatedPNG.js" ></script>
+<script type="text/javascript">
+	DD_belatedPNG.fix('*');
+</script>
+<![endif]-->
+<script type="text/javascript">
+	var trId=0;
+	//li
+	function change(e) {
+		var ldiv = $(e).next();
+		var state = ldiv.css("display");
+		var li = $(e).children("i:eq(0)");
+		if (state == 'none') {
+			ldiv.css("display", "inline");
+			li.html("一");
+		} else {
+			ldiv.css("display", "none");
+			li.html("十");
+		}
+	}
+	//切换右侧内容
+	function getContent(id){
+		var divs=$("div div[dtype='content']").each(function(){
+			if(id==this.id){
+				$(this).css("display",'inline');
+			}else{
+				$(this).css("display",'none');
+			}
+		});
+		
+	}
+	//生成收货地址文本框
+	function createTr(){
+		var ids="add"+trId;
+		//var innerHTML="<tr id='"+ids+"' height='40px' valign='top'><td align='right'>收货地址</td><td> <input style='height: 22px' type='text' >  <input type='button' onclick='"+"deleteTr('"+ids+"')"+"' value='删除'></td></tr>";
+		var tr=$("<tr>",{
+			id:ids,
+			valign:'top'
+		});
+		var td1=$("<td>",{
+			align:'right',
+			text:'收货地址',
+			height:'40px'
+		});
+		var td2=$("<td>",{
+		});
+		var input1=$("<input>",{
+			type:'text',
+			style:'height:22px',
+			name:'addressN'
+		});
+		var input2=$("<input>",{
+			type:'button',
+			value:'删除',
+			click:function(){
+				deleteTr(ids);
+			}
+		});
+		trId++;
+		td2.append(input1);
+		td2.append("&nbsp;");
+		td2.append(input2);
+		td2.append("<br>");
+		tr.append(td1);
+		tr.append(td2);
+		$("#saveTr").before(tr);
+	}
+	//删除收货地址文本框
+	function deleteTr(id){
+		$("#"+id).remove();
+	}
+	function deleteTr2(e){
+		$(e).parent().parent().remove();
+	}
+	//图片预览
+	function img_show(source,imgId) {
+			var file = source.files[0];
+			if (window.FileReader) {
+				var fr = new FileReader();
+				fr.onloadend = function(e) {
+					if(isNaN(imgId)){
+						$("#"+imgId).attr("src", e.target.result);
+					}else{
+						$("#Iimg"+imgId).attr("src", e.target.result);
+					}
+				};
+				fr.readAsDataURL(file);
+			} else {
+				alert("该浏览器不支持预览图片！");
+			}
+	}
+	//选择图片
+	function openFile(id){
+			$("#"+id).click();
+	}
+	//收货地址表单提交
+	function addressSubmit(){
+		var address="";
+		$("input[name='addressN']").each(function(){
+			address+=$(this).val()+",";
+		});
+		if(address!=""){
+			var aid=$("#aid").val();
+			var auid=$("#auid").val();
+			$.post("gj!saveAddress",{'address.address': address,'address.id':aid,'address.user_id':auid},function(data) {
+				alert("修改成功。");
+			},"json");
+		}else{
+			alert("至少填写一个收货地址！");
+		}
+	}
+	function userSubmit(){
+		$("#userF").submit();
+	}
+	//获得收货地址
+	function getAddress() {
+		$.post("gj!getAddresses",{id : '${user.id}'},function(data) {
+							$("#address").html("");
+							var address = data.address.address.split(',');
+							$("#aid").val(data.address.id);
+							$("#auid").val(data.address.user_id);
+							var innerHTML = "<tr  height='40px' valign='top' ><td  colspan='2'><input type='button' onclick='createTr();' value='添加收货地址'><br></td></tr>";
+							for (var i = 0; i < address.length; i++) {
+								innerHTML += "<tr id='address"+i+"' height='40px' valign='top'><td align='right'>收货地址"
+										+ "</td><td><input name='addressN' style='height: 22px' type='text' value='"+address[i]+"'> <input type='button' onclick='deleteTr2(this);'  value='删除'></td></tr>";
+							} 
+							$("#address").append(innerHTML);
+							getContent('addresses');
+						}, "json");
+	}
+	//获得订单
+	function getOrder() {
+		$.post("gj!getOrder",{id : '${user.id}'},function(data) {
+							$("#order").html("");
+							var main = data.order;
+							var le = main.length;
+							var innerHTML = "";
+							for (var i = 0; i < le; i++) {
+								innerHTML += "<tr align='center'><td><table style='width:90%' border='1px' bordercolor='lightgray'>"
+										+ "<tr valign='middle' height='40px' valign='top'><td colspan='7'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+										+ main[i].DATETIME
+										+ "  订单号:"
+										+ main[i].MAINORDERNUM
+										+ "</td></tr>";
+								var child = main[i].CHILD;
+								for (var j = 0; j < child.length; j++) {
+									innerHTML += "<tr align='center'  valign='top'>"
+											+ "<td align='center' width='120'><img width='100' height='100' src='${pageContext.request.contextPath}/imgs/"+child[j].PHOTO+"'></td>"
+											+ "<td align='center' width='220'><br>"
+											+ child[j].INTRODUCTION
+											+ "<br><br>颜色分类:" + child[j].COLOR
+											+ "</td>" + "<td width='100'><br>￥<font style='text-decoration: line-through;'>"
+											+ child[j].CPRICE + "</font><br>￥"
+											+ child[j].PRICE + "</td>" + "<td width='50'><br>"
+											+ child[j].WARENUM + "</td>";
+									if (j == 0) {
+										innerHTML += "<td width='150' align='center' rowspan='"+child.length+"'><br>￥"
+												+ main[i].TOTAL_PRICE
+												+ "<br>("
+												+ main[i].PAY_METHOD
+												+ ")</td>"
+												+ "<td rowspan='"+child.length+"' width='120'><br>"
+												+ main[i].STATE + "</td>"
+									}
+									innerHTML += "<td width='120'><br><a>追加评论</a></td>"
+											+ "</tr>";
+								}
+								innerHTML += "</tr></td></table><br>";
+							}
+							$("#order").append(innerHTML);
+							getContent('orders');
+						}, "json");
+	}
+	//获得评论
+	function getcomment(){
+		$.post("gj!getUserComment",{id : '${user.id}'},function(data) {
+			$("#comment").html("");
+			var comment=data.comment;
+			var innerHTML = "";
+			for (var i = 0; i < comment.length; i++) {
+				innerHTML += "<tr><td colspan='2'><hr style='margin:10px'></td></tr><tr id='address"+i+"' height='40px' valign='top'>"
+							+"<td><div style='width:55%;margin-left:70px'>"+comment[i].CONTENT+"<br><br>["+comment[i].DATETIME+"]</div></td>"
+							+"<td algin='left' style='width:30%'>"+comment[i].INTRODUCTION+"<br><br>"+comment[i].PRICE+"元</td>";
+							+"</tr>";
+			} 
+			$("#comment").append(innerHTML);
+			getContent('comments');
+		}, "json");
+	}
+</script>
+</head>
+<body>
+	<div id="container2">
+		<jsp:include page="head.jsp"></jsp:include>
+		<div class="content">
+			<div class="where">
+				您的位置： <a href="http://www.nm.10086.cn/" target="_blank">移动首页</a>
+				&gt; <a href="index.jsp">网上商城</a> &gt; 个人中心
+			</div>
+			<div class="blank10"></div>
+			<div class="detail_cont">
+				<table cellpadding="10px">
+					<tr>
+						<td width="210px" valign="top">
+							<ul
+								style='font-size: 15px; line-height: 40px; font-weight: bold; font-family: 微软雅黑; width: 210px; background: #fbfafa; border: 1px solid #f9f9f9; margin-left: 30px; text-indent: 10px; letter-spacing: 5px'>
+								<li>
+									<hr style='margin: 5px; border: 0px;'>
+									&nbsp;&nbsp;&nbsp;个人中心
+									<center>
+										<hr style='margin: 0px; width: 88%;'>
+									</center>
+								</li>
+								<li style='cursor: pointer;'>
+									<p onclick="change(this);">&nbsp;&nbsp;我的信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>十</i></p>
+									<div style='display: none'>
+										<ul
+											style='font-size: 14px; line-height: 30px; font-family: 微软雅黑; width: 200px; margin-left: 30px; text-indent: 10px; letter-spacing: 5px; font-weight: 500;'>
+											<li><a href="javascript:void(0)" onclick="getContent('infos')">个人信息</a></li>
+											<li><a href="javascript:void(0)" onclick="getAddress()">收货地址</a></li>
+										</ul>
+									</div>
+								</li>
+								<li style='cursor: pointer;'>
+									<p onclick="change(this);">&nbsp;&nbsp;我的订单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>十</i></p>
+									<div style='display: none'>
+										<ul
+											style='font-size: 14px; line-height: 30px; font-family: 微软雅黑; width: 200px; margin-left: 30px; text-indent: 10px; letter-spacing: 5px; font-weight: 500;'>
+											<li><a href='javescript:void(0);' onclick="getOrder();">商品订单</a></li>
+										</ul>
+									</div>
+								</li>
+								<li style='cursor: pointer;' >
+									<p onclick="change(this);">&nbsp;&nbsp;评论管理&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>十</i></p>
+									<div style='display: none'>
+										<ul
+											style='font-size: 14px; line-height: 30px; font-family: 微软雅黑; width: 200px; margin-left: 30px; text-indent: 10px; letter-spacing: 5px; font-weight: 500;'>
+											<li><a href='javescript:void(0);' onclick="getcomment();">我的评论</a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</td>
+						<td style='width:80%' valign="top" align="center">
+							<!-- 个人资料 -->
+							<div id='infos' dtype='content'
+								style='height: 450px;  width: 920px; display: none;'>
+								<form method="post" action="gj!saveUser" id="userF" enctype="multipart/form-data">
+									<br> <font style="font-size: 15px; line-height: 10px">个人资料</font>
+									<br> <br>
+									<table
+										style='letter-spacing: 10px; font-size: 15px; font-family: 微软雅黑;width: 90%'>
+										<tr height="100px" valign="top">
+											<td style="text-indent: 50px; width: 25%">当前头像</td>
+											<td><p><img id='uface' style='border: 1px solid lightgray;'
+												src="${pageContext.request.contextPath}/imgs/${user.face}"
+												width="84" height="84">
+												 <input onchange='img_show(this,"uface");' type="file" name='imgs' id="face" style="display: none">
+												 <input type='hidden' name="user.face" value='${user.face}'> 
+												 <input type='hidden' name="user.id" value='${user.id}'> 
+												 <input type='hidden' name="user.password" value='${user.password}'> 
+												 <input style="margin-top: 30px" type="button" id='cface' value="选择图片" onclick="openFile('face');"></p></td>
+										</tr>
+										<tr height="40px" valign="top">
+											<td style="text-indent: 50px">姓名</td>
+											<td><input name="name" style="height: 22px" type='text'
+												value="${user.name}" disabled="disabled">
+												<input name="user.name" style="height: 22px" type='hidden'
+												value="${user.name}"  >	
+											</td>
+										</tr>
+										<tr height="40px" valign="top">
+											<td style="text-indent: 50px">出生日期</td>
+											<td><input name="user.birthday" style="height: 22px" value="${ user.birthday}"
+												type='text'></td>
+										</tr>
+										<tr height="40px" valign="top">
+											<td style="text-indent: 50px">电话号码</td>
+											<td><input name="phone_number" style="height: 22px" type='text'
+												value='${user.phone_number }' disabled="disabled"> 
+												<input name="user.phone_number" style="height: 22px" type='hidden'
+												value='${user.phone_number }'> 
+											</td>
+										</tr>
+										<tr height="40px" valign="top">
+											<td style="text-indent: 50px">身份证号码</td>
+											<td><input name="idcard" style="height: 22px" type='text'
+												value='${user.idcard }' disabled="disabled"> 
+												<input name="user.idcard" style="height: 22px" type='hidden'
+												value='${user.idcard }' > 
+											</td>
+										</tr>
+										<tr height="40px" valign="top">
+											<td style="text-indent: 50px">性别</td>
+											<td><input style="height: 22px" type="radio" value="男"
+												name="user.sex" checked="checked">男<input type="radio"
+												value="女" name="user.sex" t>女</td>
+										</tr>
+										<tr height="40px" valign="top">
+											<td style="text-indent: 50px">省份</td>
+											<td><input name="user.province" style="height: 22px" value='${user.province}'
+												type='text'></td>
+										</tr>
+										<tr align="center" height="40px" valign="top">
+											<td  style="text-indent: 50px" colspan="2"><input
+												style="height: 22px" value="保存" type='button' onclick="userSubmit();"></td>
+										</tr>
+									</table>
+								</form>	
+							</div> 
+							<!--收货地址-->
+							<div id='addresses' dtype='content'
+								style='height: 450px; background: #fbfafa; width: 880px; display: none'>
+								<form enctype="application/x-www-form-urlencoded" method='post' action="gj!saveAddress" id="addressF">
+									<br> <font style="font-size: 15px; line-height: 10px">收货地址</font>
+									<br> <br>
+									<input type="hidden" name="address.address" id="addressH">
+									<input type="hidden" name="address.id" id="aid">
+									<input type="hidden" name="address.user_id" id="auid">
+									<table
+										style='letter-spacing: 10px; font-size: 15px; font-family: 微软雅黑; text-indent: 50px;width: 90%'>
+										<tbody id="address">
+										</tbody>
+										<tr id='saveTr' height='40px' valign='top' >
+											<td  colspan='2' align='center'>
+												<input type="hidden" name='address.id' id='aid'>
+												<input type="hidden" name='address.user_id' id='auid'>
+												<br><input type='button' onclick='addressSubmit();' value='保存' ><br>
+											</td>
+										</tr>
+									</table>
+								</form>
+							</div> 
+							<!-- 收货地址end -->
+							<!-- 商品订单 -->
+							<div style='width:80%' id='orders' dtype='content'
+								style='height: auto 450px; background: #fbfafa; width: 780px;'>
+								<br> <font style="font-size: 15px; line-height: 10px">商品订单</font>
+								<br> <br>
+								<table >
+									<tbody id="order">
+									</tbody>
+								</table>
+							</div>
+							<!--商品订单end  -->
+							<!-- 用户评论 -->
+							<div id='comments' dtype='content'
+								style='height: 450px;  width: 720px; display: none;'>
+								<br> <font style="font-size: 15px; line-height: 10px">评论管理</font>
+								<br> <br>
+								<table style='width:700px'>
+									<tbody id="comment">
+									</tbody>
+								</table>
+							</div>
+							<!-- 用户评论end -->
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<jsp:include page="tail.jsp"></jsp:include>
+	</div>
+</body>
+</html>

@@ -1,0 +1,404 @@
+package action;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.struts2.ServletActionContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.alibaba.fastjson.JSONObject;
+
+import service.gjservice;
+import vo.ChildOrderVo;
+import vo.MainOrderVo;
+import vo.PhoneNumberVo;
+import vo.ReceiveAddressVo;
+import vo.UsersVo;
+import vo.WareFlashSaleVo;
+import vo.WareGroupBuyingVo;
+import vo.WareVo;
+
+public class gjaction {
+	JSONObject json = new JSONObject();
+
+	ApplicationContext ac = new ClassPathXmlApplicationContext(
+			"config-resource/aplicationContext.xml");
+	gjservice is = (gjservice) ac.getBean("gjService");
+
+	// 手机号码
+	PhoneNumberVo pn = new PhoneNumberVo();
+
+	private Integer currpage;
+	private Integer pagecount;
+	// 用户对象
+	private UsersVo user;
+	private String msg;// 登陆失败返回一个信息
+	private WareVo ware;
+	private WareGroupBuyingVo group;
+	private ReceiveAddressVo address;
+	private List list;
+	private Integer id;
+	// 子订单
+	private ChildOrderVo child;
+
+	// 主订单
+	private MainOrderVo mains;
+
+	public String list() {
+		System.out.println("gjService");
+		System.out.println(is.cs());
+		return null;
+	}
+
+	// 查询轮播图
+	public String allRotationImage() {
+		List rlist = is.selRotationlmage();
+		json.put("rlist", rlist);
+		// System.out.println(json.toJSONString());
+		return "success";
+	}
+
+	// 查询商品表
+	public String selwares() {
+
+		List tj = new ArrayList();
+		tj = is.selware("tj", "启用");
+		// System.out.println(tj.size());
+		List rx = new ArrayList();
+		rx = is.selware("rx", "启用");
+		// System.out.println(rx.size());
+		List xp = new ArrayList();
+		xp = is.selware("xp", "启用");
+		// System.out.println(xp.size());
+
+		List rp = new ArrayList();
+		rp = is.selware("rp", "启用");
+		// System.out.println(rp.size());
+
+		// 查询状态为抢购的商品
+		List qg = new ArrayList();
+		qg = is.selware("type", "抢购");
+
+		// 查询有参加团购活动的商品
+		List group = new ArrayList();
+		group = is.selgroup();
+		// System.out.println(group.size());
+		System.out.println(1);
+		// 根据销量查询商品
+		List xl = new ArrayList();
+		xl = is.selwarebycount();
+		// System.out.println(xl.size());
+		System.out.println(1);
+		// 根据库存查询商品
+		List kc = new ArrayList();
+		kc = is.selwarebystock();
+		System.out.println(1);
+		json.put("tj", tj);
+
+		json.put("rx", rx);
+		json.put("xp", xp);
+		json.put("rp", rp);
+		json.put("tg", group);
+		json.put("xl", xl);
+		json.put("kc", kc);
+
+		json.put("qg", qg);
+		// System.out.println(tj.toString());
+		return "success";
+	}
+
+	// 查询电话号码表
+	public String allphonenumber() {
+		// System.out.println("查询电话号码表");
+		List list1 = is.selphonenumber("普通");
+		List list2 = is.selphonenumber("靓号");
+
+		json.put("list1", list1);
+		json.put("list2", list2);
+
+		return "success";
+	}
+
+	// 查询公告与活动表
+	public String allnotice() {
+		List list1 = is.selnotice("商城公告");
+		List list2 = is.selnotice("促销活动");
+		json.put("list1", list1);
+		json.put("list2", list2);
+		return "success";
+	}
+
+	// 查询电话套餐表
+	public String allpsm() {
+		List list = is.selphonesetmeal();
+		json.put("list", list);
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+
+	// 用户登录
+	public String userlogin() {
+		System.out.println("用户登录");
+		if (user.getName() == null || user.getName().equals("")
+				|| user.getPassword() == null || user.getPassword().equals("")) {
+			msg = "请检查是否输入了账号跟密码！";
+			// 失败直接返回页面
+			return "tologin";
+		}
+
+		UsersVo m = is.seluser(user);
+		if (m == null) {
+			// 当数据库后台没有查到该账户的时候，返回null的时候在传一个值去前台显示
+			msg = "账号密码错误，请重试！";
+			return "tologin";
+		}
+		HttpServletRequest request = ServletActionContext.getRequest();
+		HttpSession session = request.getSession();
+
+		// 查找到对象并封装在session里面
+		session.setAttribute("m", m);
+		session.setAttribute("user", m);
+		System.out.println("登录成功！");
+		System.out.println(m.getId());
+
+		return "grzx";
+
+	}
+
+	// 查询子订单
+	public String childorder() {
+		child = is.selchildorder(child.getId());
+
+		// 根据主订单id查询所对应的订单
+		mains = is.selbymainid(child.getMain_order_id());
+
+		json.put("morder", mains);
+
+		json.put("child", child);
+
+		return "success";
+	}
+
+	// 特惠专区
+	public String thzq() {
+		List list = is.selactivity();
+
+		// 限时抢购
+		WareFlashSaleVo xs = (WareFlashSaleVo) is.selxsqg();
+		WareVo xsw = new WareVo();
+		xsw = is.selwarebyid(xs.getWare_id());
+		System.out.println("查出" + xsw.getSale_count());
+
+		// 秒杀
+		WareFlashSaleVo ms = (WareFlashSaleVo) is.selms();
+		WareVo msw = new WareVo();
+		msw = is.selwarebyid(ms.getWare_id());
+
+		json.put("xs", xs);
+		json.put("xsw", xsw);
+		json.put("ms", ms);
+		json.put("msw", msw);
+
+		json.put("list", list);
+		return "success";
+	}
+
+	// ——————————————————————————方仕顺——————————————————————————
+	// 团购界面json
+	public String group() {
+		List list = is
+				.GWareList(
+						"select g.* ,w.name,w.price AS WARE_PRICE,w.photo "
+								+ "from ware_group_buying g left join ware w on g.ware_id=w.id "
+								+ "where g.state='启用' and w.state='启用' order by g.id",
+						currpage, pagecount);
+		Integer count = is
+				.GWareCount("select count(*) from (select g.* ,w.name,w.price   AS WARE_PRICE,w.photo from ware_group_buying g left join ware w on g.ware_id=w.id where g.state='启用'  and w.state='启用' order by g.id)");
+		json.put("data", list);
+		json.put("count", count);
+		System.out.println("——————————————group——————————————");
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+
+	// 去团购详情界面
+	public String toGroup() {
+		System.out.println("——————————————toGroup——————————————");
+		group = (WareGroupBuyingVo) is.selById("WareGroupBuyingVo", id);
+		id = ware.getId();
+		return "toGroup";
+	}
+
+	// 获得团购商品详情
+	public String groupDetail() {
+		System.out.println("——————————————groupDetail——————————————");
+		if (msg.equals("never")) {
+			ware = (WareVo) is.selById("WareVo", id);
+			int count = is
+					.DataCount("UserCommentVo where state='启用' and ware_id="
+							+ id);
+			int totalpage = (count - 1) / pagecount + 1;
+			list = is.selByCondition("WareColorVo", "where ware_id=" + id);
+			json.put("color", list);
+			json.put("ware", ware);
+			json.put("count", count);
+			json.put("totalpage", totalpage);
+		}
+		list = is.getGroupDetail(id, currpage, pagecount);
+		json.put("detail", list);
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+
+	// 获得订单
+	public String getOrder() {
+		System.out.println("——————————————getOrder——————————————");
+		List<Map> main = is.getMainOrder(id);
+		for (Map m : main) {
+			m.put("CHILD", is.getChildOrder(m.get("ID") + ""));
+		}
+		json.put("order", main);
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+
+	// 获得列表
+	public String tableList() {
+		List list = is.TableList(msg);
+		json.put("data", list);
+		System.out.println("——————————————tableList——————————————");
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+
+	// 获得收货地址
+	public String getAddress() {
+		ReceiveAddressVo r = (ReceiveAddressVo) is.getAddress(
+				"ReceiveAddressVo", id);
+		System.out.println("——————————————getAddress——————————————");
+		json.put("address", r);
+		System.out.println(json.toJSONString());
+		return "success";
+	}
+
+	// 保存用户收货地址
+	public String saveAddress() {
+		is.updateVo(address);
+		System.out.println("——————————————saveAddress——————————————");
+		return "toCenter";
+	}
+
+	// 保存用户资料
+	public String saveUser() {
+		is.updateVo(user);
+		System.out.println("——————————————saveUser——————————————");
+		return "toCenter";
+	}
+
+	// ————————————————————————setter&&getter————————————————————
+	public JSONObject getJson() {
+		return json;
+	}
+
+	public void setJson(JSONObject json) {
+		this.json = json;
+	}
+
+	public PhoneNumberVo getPn() {
+		return pn;
+	}
+
+	public void setPn(PhoneNumberVo pn) {
+		this.pn = pn;
+	}
+
+	public UsersVo getUser() {
+		return user;
+	}
+
+	public void setUser(UsersVo user) {
+		this.user = user;
+	}
+
+	public String getMsg() {
+		return msg;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+
+	public ChildOrderVo getChild() {
+		return child;
+	}
+
+	public void setChild(ChildOrderVo child) {
+		this.child = child;
+	}
+
+	public MainOrderVo getMains() {
+		return mains;
+	}
+
+	public void setMains(MainOrderVo mains) {
+		this.mains = mains;
+	}
+
+	public Integer getCurrpage() {
+		return currpage;
+	}
+
+	public void setCurrpage(Integer currpage) {
+		this.currpage = currpage;
+	}
+
+	public Integer getPagecount() {
+		return pagecount;
+	}
+
+	public WareVo getWare() {
+		return ware;
+	}
+
+	public void setWare(WareVo ware) {
+		this.ware = ware;
+	}
+
+	public List getList() {
+		return list;
+	}
+
+	public void setList(List list) {
+		this.list = list;
+	}
+
+	public void setPagecount(Integer pagecount) {
+		this.pagecount = pagecount;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public WareGroupBuyingVo getGroup() {
+		return group;
+	}
+
+	public void setGroup(WareGroupBuyingVo group) {
+		this.group = group;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public void setAddress(ReceiveAddressVo address) {
+		this.address = address;
+	}
+
+}

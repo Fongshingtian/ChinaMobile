@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="vo.ManagerVo" table="Manager">
+		<id name="id" column="id" type="java.lang.Integer">
+			<generator class="sequence">
+				<param name="sequence">test_id</param>
+			</generator>
+		</id>
+		<property name="login_name" type="java.lang.String"></property>
+		<property name="password" type="java.lang.String"></property>
+		<property name="nickname" type="java.lang.String"></property>
+		<property name="state" type="java.lang.String"></property>
+	</class>
+</hibernate-mapping>

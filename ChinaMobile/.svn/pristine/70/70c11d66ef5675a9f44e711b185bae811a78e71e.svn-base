@@ -1,0 +1,61 @@
+package service;
+
+import java.util.List;
+
+import vo.ChildOrderVo;
+import vo.MainOrderVo;
+import vo.ManagerVo;
+import vo.UsersVo;
+import vo.WareFlashSaleVo;
+import vo.WareVo;
+
+
+public interface gjservice {
+	public String cs();
+	
+	//查询轮播图
+	public List selRotationlmage();
+	
+	//查询商品表
+	public List selware(String w,String nr);
+	
+	//查询有团购活动的商品
+	public List selgroup();
+	
+	//根据销量查询商品
+	public List selwarebycount();
+	
+	//根据库存查询商品
+	public List selwarebystock();
+	
+	//查询电话号码表
+	public List selphonenumber(String type);
+	
+	//查询电话套餐表
+	public List selphonesetmeal();
+	
+	//查询公告与活动表
+	public List selnotice(String type);
+	
+	//用户登录
+	public  UsersVo seluser(UsersVo m);
+	
+	//根据id查询子订单表
+	public ChildOrderVo selchildorder(Integer id);
+	
+	//根据主订单id查询所对应的订单
+	public MainOrderVo selbymainid(Integer mainid);
+	
+	//查询活动表
+	public List selactivity();
+	
+	//查询限时抢购
+	public WareFlashSaleVo selxsqg() ;
+	
+	//查询秒杀
+	public WareFlashSaleVo selms();
+	
+	//根据id查询商品
+		public WareVo selwarebyid(Integer id);
+	
+}

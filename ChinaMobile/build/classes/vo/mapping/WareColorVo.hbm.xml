@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="vo.WareColorVo" table="Ware_Color">
+		<id name="id" column="id" type="java.lang.Integer">
+			<generator class="sequence">
+				<param name="sequence">test_id</param>
+			</generator>
+		</id>
+		<property name="ware_id" type="java.lang.Integer"></property>
+		<property name="color" type="java.lang.String"></property>
+		<property name="price" type="java.lang.Float"></property>
+		<property name="stock_count" type="java.lang.Integer"></property>
+		<property name="image" type="java.lang.String"></property>
+		<property name="state" type="java.lang.String"></property>
+	</class>
+</hibernate-mapping>

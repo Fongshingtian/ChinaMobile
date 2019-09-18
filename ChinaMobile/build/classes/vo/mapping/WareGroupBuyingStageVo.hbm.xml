@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="vo.WareGroupBuyingStageVo" table="Ware_Group_Buying_Stage">
+		<id name="id" column="id" type="java.lang.Integer">
+			<generator class="sequence">
+				<param name="sequence">test_id</param>
+			</generator>
+		</id>
+		<property name="group_id" type="java.lang.Integer"></property>
+		<property name="stage1_price" type="java.lang.Float"></property>
+		<property name="stage2_price" type="java.lang.Float"></property>
+		<property name="stage3_price" type="java.lang.Float"></property>
+	</class>
+</hibernate-mapping>

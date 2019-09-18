@@ -1,0 +1,198 @@
+package service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import common.Hibernate_Dao;
+import service.mmfservice;
+import vo.ChildOrderVo;
+import vo.MainOrderVo;
+import vo.PhoneNumberVo;
+import vo.WareBrandVo;
+import vo.WareFlashSaleVo;
+import vo.WareVo;
+import vo.UserCommentVo;
+
+public class mmfserviceImpl extends Hibernate_Dao  implements mmfservice{
+	public String cs() {
+		// TODO Auto-generated method stub
+		return "mmfserviceImpl";
+	}
+	public List selwares(String w){
+		List li=new ArrayList();
+		li=sel("from WareVo where "+w+"=1");
+		return li;
+	}
+	public List seltg(){
+		List li=new ArrayList();
+		li=sel("from WareVo where tj=1");
+		return li;
+	}
+	public List selwares(){
+		List li=new ArrayList();
+		li=sel("from WareVo Order by xl");
+		return li;
+	}
+	public List selcity(){//查询城市表
+		List li=new ArrayList();
+		li=sel("from CityVo");
+		return li;
+	}
+	@Override
+	public List selpp() {//查询品牌
+		List li=new ArrayList();
+		li=sel("from WareBrandVo");
+		return li;
+	}
+	@Override
+	public List sellb() {//查询类别表WareClassifyVo
+		// TODO Auto-generated method stub
+		List li=new ArrayList();
+		li=sel("from WareClassifyVo");
+		return li;
+	}
+	public int selwarescount(){
+		return seltotalrow("select count(*) from WareVo");
+	}
+	@Override
+	public List selwaresbypage(int currPage,int pageCount) {
+		// TODO Auto-generated method stub
+		return pageByHQL("from WareVo", currPage, pageCount);
+	}
+	@Override
+	public List selwaresbypage(int ct, int pp, int lb, int currPage,
+			int pageCount,int px ,int jg) {
+		String sql="from WareVo where 1=1  ";
+		System.out.println(sql);
+		if(ct!=0){
+			sql+=" and city_id="+ct;
+		}
+		System.out.println(sql);
+		if(pp!=0){
+			sql+=" and brand_id="+pp;
+		}
+		System.out.println(sql);
+		if(lb!=0){
+			
+			sql+=" and classify_id="+lb;
+		}
+		System.out.println(sql);
+		if(jg!=0){
+			if(jg<9){
+				sql+=" and price between "+(jg-1)*500+" and "+(jg*500-1);
+			}else{
+				sql+=" and price >4000";
+			}
+		}
+		System.out.println(sql);
+		if(px==0){
+			System.out.println("销量排序");
+			sql+=" order by sale_count";
+		}
+		if(px==1){
+			System.out.println("价格排序");
+			sql+=" order by price";
+		}
+		// and price between 1 and 500
+		System.out.println(sql);
+		return pageByHQL(sql, currPage, pageCount);
+	}
+	@Override
+	public int selcount() {
+		return seltotalrow(" select count(*) from WareVo");
+	}
+	@Override
+	public WareFlashSaleVo selxsqg() {
+		return (WareFlashSaleVo)selbyid("from WareFlashSaleVo where state=1");
+	}
+	public WareFlashSaleVo selms() {
+		return (WareFlashSaleVo)selbyid("from WareFlashSaleVo where state=2");
+	}
+	@Override
+	public WareVo selwarebyid(Integer id) {
+		// TODO Auto-generated method stub
+		return (WareVo) selbyid("from WareVo where id="+id);
+	}
+	@Override
+	public int selwarescountby(int ct, int pp, int lb,int jg) {
+		String sql="from WareVo where 1=1  ";
+		System.out.println(sql);
+		if(ct!=0){
+			sql+=" and city_id="+ct;
+		}
+		System.out.println(sql);
+		if(pp!=0){
+			sql+=" and brand_id="+pp;
+		}
+		System.out.println(sql);
+		if(lb!=0){
+			sql+=" and classify_id="+lb;
+		}
+		if(jg!=0){
+			if(jg<9){
+				sql+=" and price between "+(jg-1)*500+" and "+(jg*500-1);
+			}else{
+				sql+=" and price >4000";
+			}
+		}
+		System.out.println(sql);
+		List li =sel(sql+" order by id");
+		System.out.println(li.size());
+		return li.size();
+	}
+	@Override
+	public MainOrderVo selmainorder(String zm,String bh) {
+		if(zm.equals("身份证号")){
+			zm="idcard";
+		}
+		if(zm.equals("订单号")){
+			zm="mainordernum";
+		}
+		String hql="from MainOrderVo m where  m."+zm+"='"+bh+"' order by id";
+		System.out.println(hql);
+		return (MainOrderVo) selbyid(hql);
+	}
+	@Override
+	public List selchildorder(String zddh) {
+		
+		return getHibernateTemplate().find("from ChildOrderVo where main_order_id="+zddh+" order by id");
+	}
+	@Override
+	public ChildOrderVo selchildorderbyid(int id) {
+		// TODO Auto-generated method stub
+		return (ChildOrderVo) getbyid(ChildOrderVo.class, id);
+	}
+	public MainOrderVo selmainorderbyid(int id) {
+		// TODO Auto-generated method stub
+		return (MainOrderVo) getbyid(MainOrderVo.class, id);
+	}
+	@Override
+	public PhoneNumberVo selphonenumberbyid(int id) {
+		// TODO Auto-generated method stub
+		return (PhoneNumberVo)getbyid(PhoneNumberVo.class, id);
+	}
+	@Override
+	public WareBrandVo selbrandbyid(int id) {
+		// TODO Auto-generated method stub
+		return (WareBrandVo)getbyid(WareBrandVo.class, id);
+	}
+	@Override
+	public List selobjbyid(String obj, String idname,int id) {
+		// TODO Auto-generated method stub
+		System.out.println("进入");
+		return getHibernateTemplate().find("from "+obj+" where "+idname+"="+id+" order by "+idname);
+	}
+	public Object selobjbyid(int id,String obj, String idname) {
+		// TODO Auto-generated method stub
+		System.out.println("进入");
+		return selbyid("from "+obj+" where "+idname+"="+id+" order by "+idname);
+	}
+	@Override
+	public boolean delobjbyid(String obj, String iname, int id) {
+		// TODO Auto-generated method stub
+		return executeSQL("delete from "+obj+" where "+iname+" ="+id);
+	}
+}
+
